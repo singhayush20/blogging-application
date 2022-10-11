@@ -3,6 +3,8 @@ package com.ayushsingh.bloggingapplication.controllers;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,14 +30,14 @@ public class UserController {
 
     //POST- create user
     @PostMapping("/")
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto){
+    public ResponseEntity<UserDto> createUser(@Valid /*Enable validation*/ @RequestBody UserDto userDto){
         UserDto createdUserDto=this.userService.createUser(userDto);
         return new ResponseEntity<UserDto>(createdUserDto,HttpStatus.CREATED);
     }
     //PUT- update user
     @PutMapping("/{userid}") //userid is a path uri variable, we will use it fetch data
     //@PathVariable("userid") if the variable name is same as mapping, we need not specify like this
-    public ResponseEntity<UserDto> updateUser(@RequestBody UserDto userDto,@PathVariable("userid") Integer uid){
+    public ResponseEntity<UserDto> updateUser(/*Enable Validation*/ @Valid @RequestBody UserDto userDto,@PathVariable("userid") Integer uid){
         UserDto updatedUser=this.userService.updateUser(userDto, uid);
         return ResponseEntity.ok(updatedUser);
 
