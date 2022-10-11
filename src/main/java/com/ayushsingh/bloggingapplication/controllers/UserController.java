@@ -2,7 +2,6 @@ package com.ayushsingh.bloggingapplication.controllers;
 
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -66,6 +65,7 @@ public class UserController {
     }
     @GetMapping("/{userid}")
     public ResponseEntity<UserDto> getUserById(@PathVariable("userid") Integer uid){
+       
         return ResponseEntity.ok(this.userService.getUserById(uid));
     }
     
