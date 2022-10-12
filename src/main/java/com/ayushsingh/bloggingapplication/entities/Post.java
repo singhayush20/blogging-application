@@ -2,7 +2,6 @@ package com.ayushsingh.bloggingapplication.entities;
 
 import java.util.Date;
 
-import javax.annotation.Generated;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,7 +11,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import org.hibernate.annotations.ManyToAny;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,9 +29,9 @@ public class Post {
     private String title;
     @Column(name="post_content",length=10000,nullable =false)
     private String content;
-    
+    @Column(name="image_name")
     private String imgName;
-
+    @Column(name="post_date")
     private Date addDate;
     //every post is associated with a category
     //many posts in one category
@@ -43,6 +41,7 @@ public class Post {
     //every post is made by an user
     //many posts for one user
     @ManyToOne
+    @JoinColumn(name="userID",nullable = false)
     private User user;
 
     
