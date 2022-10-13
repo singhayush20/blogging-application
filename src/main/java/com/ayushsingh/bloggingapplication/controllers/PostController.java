@@ -87,10 +87,18 @@ public class PostController {
         return new ResponseEntity<PostDto>(updatedPost,HttpStatus.OK);
     }
 
-    //get post by matching title 
-    @GetMapping(value="/findbystring/{string}")
-    public ResponseEntity<List<PostDto>> findPostsByString(@PathVariable(name="string") String string){
-        List<PostDto> posts=this.postService.getPostByTitleContaining(string);
+    //search
+    @GetMapping(value="/findbytitle/{string}")
+    public ResponseEntity<List<PostDto>> findPostsByTitle(@PathVariable(name="string") String string){
+        List<PostDto> posts=this.postService.searchPosts(string);
         return new ResponseEntity<List<PostDto>>(posts,HttpStatus.OK);
     }
+
+    @GetMapping(value="/findBytitle/query/{keyword}")
+    public ResponseEntity<List<PostDto>> findPostByTitleQuery(@PathVariable(name="keyword") String keyword){
+        List<PostDto> posts=this.postService.searchByTitle(keyword);
+        return new ResponseEntity<List<PostDto>>(posts,HttpStatus.OK);
+    }
+
+    
 }

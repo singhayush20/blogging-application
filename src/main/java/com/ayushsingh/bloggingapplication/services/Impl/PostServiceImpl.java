@@ -141,13 +141,27 @@ public class PostServiceImpl implements PostService {
         }
 
         @Override
-        public List<PostDto> getPostByTitleContaining(String title) {
-                if (title == null || title.isBlank()) {
-                        throw new ResourceNotFoundException("post with title containing string ", title, 0);
+        public List<PostDto> searchPosts(String keyword) {
+                if (keyword == null || keyword.isBlank()) {
+                        throw new ResourceNotFoundException("post with title containing string ", keyword, 0);
                 }
-                List<Post> posts = this.postRep.findByTitleContaining(title);
+                List<Post> posts = this.postRep.findByTitleContaining(keyword);
                 List<PostDto> newPosts = posts.stream().map((post) -> this.modelMapper.map(post, PostDto.class))
                                 .collect(Collectors.toList());
                 return newPosts;
         }
+
+        // search using query
+        @Override
+        public List<PostDto> searchByTitle(String keyword) {
+
+                if (keyword == null || keyword.isBlank()) {
+                        throw new ResourceNotFoundException("post with title containing string ", keyword, 0);
+                }
+                List<Post> posts = this.postRep.searchByTitleContaining("%" + keyword + "%");
+                List<PostDto> newPosts = posts.stream().map((post) -> this.modelMapper.map(post, PostDto.class))
+                                .collect(Collectors.toList());
+                return newPosts;
+        }
+
 }
