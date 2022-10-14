@@ -30,7 +30,7 @@ public class Post {
     @Column(name="post_content",length=10000,nullable =false)
     private String content;
     @Column(name="image_name")
-    private String imgName;
+    private String image;
     @Column(name="post_date")
     private Date addDate;
     //every post is associated with a category

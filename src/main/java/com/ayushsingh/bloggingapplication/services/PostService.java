@@ -2,10 +2,6 @@ package com.ayushsingh.bloggingapplication.services;
 
 import java.util.List;
 
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-
-import com.ayushsingh.bloggingapplication.entities.Post;
 import com.ayushsingh.bloggingapplication.payloads.PostDto;
 import com.ayushsingh.bloggingapplication.payloads.PostResponse;
 

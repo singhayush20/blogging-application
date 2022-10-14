@@ -20,7 +20,7 @@ public class PostDto {
 
     private String addDate;
 
-    private String imgName;
+    private String image;
 
     private UserDto user;
 
