@@ -37,4 +37,5 @@ public class BloggingApplication implements CommandLineRunner{
         return new BCryptPasswordEncoder();
     }
 
+
 }
