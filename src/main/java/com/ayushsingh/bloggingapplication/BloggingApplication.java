@@ -8,7 +8,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.modelmapper.ModelMapper;
 @SpringBootApplication
-public class BloggingApplication implements CommandLineRunner{
+public class BloggingApplication implements CommandLineRunner
+{
 	// @Autowired
 	// private PasswordEncoder passwordEncoder;
 
@@ -29,7 +30,7 @@ public class BloggingApplication implements CommandLineRunner{
 	@Override
 	public void run(String... args) throws Exception {
 		//print the encoded password for xyz
-		System.out.println(passwordEncoder().encode("xyz"));
+		System.out.println(BloggingApplication.class.getName()+"In the run() method: "+passwordEncoder().encode("xyz"));
 		
 	}
 	@Bean
