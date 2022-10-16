@@ -22,7 +22,16 @@ public class JwtTokenHelper {
     // retrive username from jwt token
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
+        //getSubject will return the username which is 
+        //present with the "sub" registered claim
     }
+    /* 
+     * The double colon (::) operator, also known as 
+     * method reference operator in Java, is used to call 
+     * a method by referring to it with the help of its 
+     * class directly. They behave exactly as the lambda 
+     * expressions.
+    */
 
     // retrieve expiration date from jwt token
     public Date getExpirationDateFromToken(String token) {
@@ -54,7 +63,7 @@ public class JwtTokenHelper {
     /*
      * While creating the token-
      * 1. Define claims of the token, like Issuer, Expiration, Subject, and the ID
-     * 2. Sign the JWT using the HS%!@ algorithm and secret key
+     * 2. Sign the JWT using the HS512 algorithm and secret key
      * 3. Accoridng to JWS Compact Serialization
      * compaction of the JWT to a URL-safe string
      */

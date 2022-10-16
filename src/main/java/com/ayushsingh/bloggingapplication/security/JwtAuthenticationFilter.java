@@ -67,7 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (
         // username should not be null
         username != null &&
-        // also, Spring security should not be authentication any user
+        // also, Spring security should not be authenticating any user
                 SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
             if (this.jwtTokenHelper.validateToken(token, userDetails)) {
