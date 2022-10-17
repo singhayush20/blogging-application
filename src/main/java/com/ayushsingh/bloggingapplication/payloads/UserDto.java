@@ -7,8 +7,6 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-import com.ayushsingh.bloggingapplication.entities.Role;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

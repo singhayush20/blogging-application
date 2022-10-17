@@ -15,6 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import com.ayushsingh.bloggingapplication.security.CustomUserDetailsService;
 import com.ayushsingh.bloggingapplication.security.JwtAuthenticationFilter;
@@ -102,9 +103,17 @@ import com.ayushsingh.bloggingapplication.security.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@EnableWebMvc //for Swagger
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfigs {
-    
+    public static final String []PUBLIC_URLS={
+        "/api/v1/auth/*",//for authentication
+        "/v3/api-docs",//to get list of all APIs
+        "/v2/api-docs",//to use swagger UI
+        "/swagger-resources/**",
+        "/swagger-ui/**",
+        "/webjars/**"
+    };
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -119,8 +128,12 @@ public class SecurityConfigs {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeHttpRequests() // authorize http requests
-                .antMatchers("/api/v1/auth/*") // make the authentication url public
-                .permitAll() // permit these urls to be accessed directly
+                .antMatchers(PUBLIC_URLS)
+                .permitAll()
+                // .antMatchers("/api/v1/auth/*") // make the authentication url public
+                // .permitAll() 
+                // .antMatchers("/v3/api-docs")//for swagger api documentation
+                // .permitAll()// permit these urls to be accessed directly
                 .antMatchers(HttpMethod.GET)
                 .permitAll() // allow all the get APIs to be accessible without login
                 .anyRequest() // authorize all requests
