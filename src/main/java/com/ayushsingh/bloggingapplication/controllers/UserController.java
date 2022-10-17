@@ -57,7 +57,7 @@ public class UserController {
        
             //ADMIN ROLE CAN USE THIS API
         @DeleteMapping("/{userid}")
-        @PreAuthorize("hasRole('ADMIN')") //NOW ONLY THE USERS WITH ADMIN ROLES WILL BE PERMITTED
+        @PreAuthorize("hasRole('ROLE_ADMIN')") //NOW ONLY THE USERS WITH ADMIN ROLES WILL BE PERMITTED
         public ResponseEntity<ApiResponse> deleteUser(@PathVariable("userid") Integer uid){
             
             // ResponseEntity<?> deletedUser=
