@@ -119,7 +119,7 @@ public class SecurityConfigs {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeHttpRequests() // authorize http requests
-                .antMatchers("/api/v1/auth/login") // make the authentication url public
+                .antMatchers("/api/v1/auth/*") // make the authentication url public
                 .permitAll() // permit these urls to be accessed directly
                 .antMatchers(HttpMethod.GET)
                 .permitAll() // allow all the get APIs to be accessible without login

@@ -22,7 +22,7 @@ import io.jsonwebtoken.MalformedJwtException;
 @Component // to enable autowiring
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String CLASS_NAME=JwtAuthenticationFilter.class.getName();
+    private static final String CLASS_NAME = JwtAuthenticationFilter.class.getName();
     @Autowired
     private UserDetailsService userDetailsService;
 
@@ -41,17 +41,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // key is "Authorization" -get its value
         String requestToken = request.getHeader("Authorization");
         // token starts from Bearer <token value>
-        System.out.println(CLASS_NAME+" Token in request: " + requestToken);
+        System.out.println(CLASS_NAME + " Token in request: " + requestToken);
         // fetch the username
         String username = null;
 
         String token = null;
 
         if (requestToken != null && requestToken.startsWith("Bearer")) {
+
             // we found token
             token = requestToken.substring(7);// Bearer 44894732e8732
+            System.out.println("Token obtained as: " + token);
             try {
                 username = this.jwtTokenHelper.getUsernameFromToken(token);
+                System.out.println("Username obtained as: " + username);
             } catch (IllegalArgumentException e) {
                 System.out.println(CLASS_NAME + " Unable to get JWT Token: " + e.getMessage());
             } catch (ExpiredJwtException e) {
@@ -72,15 +75,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
             if (this.jwtTokenHelper.validateToken(token, userDetails)) {
                 // this means the token is valid
-                //create an authentication instance
-                System.out.println("Granted authorities for the user: "+userDetails.getAuthorities());
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken=
-                //userDetails.getAuthorities() gives the list of all the granted authorities
-                new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
-                //set the details
-                usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                // create an authentication instance
+                System.out.println(username + " Granted authorities for the user: " + userDetails.getAuthorities());
+                // userDetails.getAuthorities() gives the list of all the granted authorities
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                // set the details
+                usernamePasswordAuthenticationToken
+                        .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 // now authentication using SecurityContextHolder
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                System.out.println("Authentication is set for " + username);
 
             } else {
                 System.out.println(CLASS_NAME + " Invalid jwt token");
@@ -90,5 +95,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     CLASS_NAME + " Username is null: " + username + " or authentication context is not null");
         }
         filterChain.doFilter(request, response);
+        System.out.println("Returning from doFilterInternal() for: " + username);
     }
 }

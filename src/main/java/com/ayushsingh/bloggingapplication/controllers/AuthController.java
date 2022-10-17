@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ayushsingh.bloggingapplication.exceptions.APIException;
 import com.ayushsingh.bloggingapplication.payloads.JWTAuthRequest;
 import com.ayushsingh.bloggingapplication.payloads.JWTAuthResponse;
+import com.ayushsingh.bloggingapplication.payloads.UserDto;
 import com.ayushsingh.bloggingapplication.security.JwtTokenHelper;
+import com.ayushsingh.bloggingapplication.services.UserService;
 
 @RestController
 @RequestMapping("api/v1/auth/")
@@ -27,6 +29,9 @@ public class AuthController {
     // user details
     @Autowired
     private UserDetailsService userDetailsService;
+
+    @Autowired
+    private UserService userService;
     // authentication manager will be used to authenticate the
     // password
     @Autowired
@@ -63,6 +68,13 @@ public class AuthController {
             throw new APIException("Invalid username or password");
         }
 
+    }
+
+    //Register new user api
+    @PostMapping("/register")
+    public ResponseEntity<UserDto> registerUser(@RequestBody UserDto userDto){
+        UserDto registeredUser=this.userService.registerNewUser(userDto);
+        return new ResponseEntity<UserDto>(registeredUser,HttpStatus.OK);
     }
 
 }
