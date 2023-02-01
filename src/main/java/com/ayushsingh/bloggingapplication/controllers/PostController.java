@@ -22,9 +22,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ayushsingh.bloggingapplication.configs.Appconstants;
-import com.ayushsingh.bloggingapplication.payloads.ApiResponse;
+import com.ayushsingh.bloggingapplication.constants.AppConstants;
 import com.ayushsingh.bloggingapplication.payloads.PostDto;
 import com.ayushsingh.bloggingapplication.payloads.PostResponse;
+import com.ayushsingh.bloggingapplication.payloads.SuccessResponse;
 import com.ayushsingh.bloggingapplication.services.FileService;
 import com.ayushsingh.bloggingapplication.services.PostService;
 
@@ -32,7 +33,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/blog/posts")
 public class PostController {
     @Autowired
     private PostService postService;
@@ -44,77 +45,100 @@ public class PostController {
     private String path;
 
     // create
-    @PostMapping("/user/{userId}/category/{categoryId}/posts")
-    public ResponseEntity<PostDto> createPost(@RequestBody PostDto postDto,
-            @PathVariable(name = "userId") Integer uid, @PathVariable(name = "categoryId") Integer categoryId) {
+    @PostMapping("/create")
+    public ResponseEntity<SuccessResponse<PostDto>> createPost(@RequestBody PostDto postDto,
+            @RequestParam(name = "userid") Integer uid, @RequestParam(name = "categoryid") Integer categoryId) {
         PostDto newPost = this.postService.createPost(postDto, uid, categoryId);
-        return new ResponseEntity<PostDto>(newPost, HttpStatus.CREATED);
+        SuccessResponse<PostDto> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
+                AppConstants.SUCCESS_MESSAGE, newPost);
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
     // get post by user id
-    @GetMapping(value = "/user/{userId}/posts")
-    public ResponseEntity<List<PostDto>> getPostsByUser(
-            @PathVariable(name = "userId") Integer userId) {
+    @GetMapping(value = "/get-post-by-user")
+    public ResponseEntity<SuccessResponse<List<PostDto>>> getPostsByUser(
+            @RequestParam(name = "userid") Integer userId) {
         List<PostDto> posts = this.postService.getPostsByUser(userId);
-        return new ResponseEntity<List<PostDto>>(posts, HttpStatus.OK);
+
+        SuccessResponse<List<PostDto>> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
+                AppConstants.SUCCESS_MESSAGE, posts);
+
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
     // get post by category id
-    @GetMapping(value = "/category/{categoryId}/posts")
-    public ResponseEntity<List<PostDto>> getPostsByCategory(
-            @PathVariable(name = "categoryId") Integer categoryId) {
+    @GetMapping(value = "/get-post-by-category")
+    public ResponseEntity<SuccessResponse<List<PostDto>>> getPostsByCategory(
+            @RequestParam(name = "categoryid") Integer categoryId) {
         List<PostDto> posts = this.postService.getPostsByCategory(categoryId);
-        return new ResponseEntity<List<PostDto>>(posts, HttpStatus.OK);
+        SuccessResponse<List<PostDto>> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
+                AppConstants.SUCCESS_MESSAGE, posts);
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
     // get all posts
     @GetMapping(value = "/allposts") // page number starts from 0
-    public ResponseEntity<PostResponse> getAllPosts(
+    public ResponseEntity<SuccessResponse<PostResponse>> getAllPosts(
             @RequestParam(value = "pageNumber", defaultValue = Appconstants.PAGE_NUMBER, required = false) Integer pageNumber,
             @RequestParam(value = "pageSize", defaultValue = Appconstants.PAGE_SIZE, required = false) Integer pageSize,
             @RequestParam(value = "sortBy", defaultValue = Appconstants.SORT_BY, required = false) String sortBy,
             @RequestParam(value = "sortDirection", defaultValue = Appconstants.SORT_DIR, required = false) String sortDirection) {
         PostResponse postResponse = this.postService.getAllPosts(pageNumber, pageSize, sortBy, sortDirection);
-        return new ResponseEntity<PostResponse>(postResponse, HttpStatus.OK);
+        SuccessResponse<PostResponse> successResponse = new SuccessResponse<PostResponse>(AppConstants.SUCCESS_CODE,
+                AppConstants.SUCCESS_MESSAGE, postResponse);
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
     // get post by id
-    @GetMapping(value = "/{postId}")
-    public ResponseEntity<PostDto> getPostById(@PathVariable(name = "postId") Integer postId) {
+    @GetMapping(value = "/get-post-by-id")
+    public ResponseEntity<SuccessResponse<PostDto>> getPostById(@RequestParam(name = "postid") Integer postId) {
         PostDto post = this.postService.getPostById(postId);
-        return new ResponseEntity<PostDto>(post, HttpStatus.OK);
+        SuccessResponse<PostDto> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
+                AppConstants.SUCCESS_MESSAGE, post);
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
     // delete post
-    @DeleteMapping(value = "/delete/{postId}")
-    public ResponseEntity<ApiResponse> deletePost(@PathVariable(name = "postId") Integer postId) {
+    @DeleteMapping(value = "/delete")
+    public ResponseEntity<SuccessResponse<String>> deletePost(@RequestParam(name = "postid") Integer postId) {
         this.postService.deletePost(postId);
-        return new ResponseEntity<>(new ApiResponse("post deleted successfully", true), HttpStatus.OK);
+        SuccessResponse<String> successResponse = new SuccessResponse<String>(AppConstants.SUCCESS_CODE,
+                AppConstants.SUCCESS_MESSAGE, "Post deleted successfully");
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
     // update post
-    @PutMapping(value = "/update/{postId}")
-    public ResponseEntity<PostDto> updatePost(
-            @PathVariable(name = "postId") Integer postId,
+    @PutMapping(value = "/update")
+    public ResponseEntity<SuccessResponse<PostDto>> updatePost(
+            @RequestParam(name = "postid") Integer postId,
             @RequestBody PostDto postDto) {
 
         PostDto updatedPost = this.postService.updatePost(postDto, postId);
-        return new ResponseEntity<PostDto>(updatedPost, HttpStatus.OK);
+        SuccessResponse<PostDto> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
+                AppConstants.SUCCESS_MESSAGE, updatedPost);
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
     // search
     @GetMapping(value = "/findbytitle/{string}")
-    public ResponseEntity<List<PostDto>> findPostsByTitle(@PathVariable(name = "string") String string) {
+    public ResponseEntity<SuccessResponse<List<PostDto>>> findPostsByTitle(
+            @PathVariable(name = "string") String string) {
         List<PostDto> posts = this.postService.searchPosts(string);
-        return new ResponseEntity<List<PostDto>>(posts, HttpStatus.OK);
+        SuccessResponse<List<PostDto>> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
+                AppConstants.SUCCESS_MESSAGE, posts);
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
     @GetMapping(value = "/findBytitle/query/{keyword}")
-    public ResponseEntity<List<PostDto>> findPostByTitleQuery(@PathVariable(name = "keyword") String keyword) {
+    public ResponseEntity<SuccessResponse<List<PostDto>>> findPostByTitleQuery(
+            @PathVariable(name = "keyword") String keyword) {
         List<PostDto> posts = this.postService.searchByTitle(keyword);
-        return new ResponseEntity<List<PostDto>>(posts, HttpStatus.OK);
+        SuccessResponse<List<PostDto>> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
+                AppConstants.SUCCESS_MESSAGE, posts);
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
+    /*----------------------------------------------------------------------------------------------------------------- */
     // post image upload
     @PostMapping("/post/image/upload/{postId}")
     public ResponseEntity<PostDto> uploadPostImage(

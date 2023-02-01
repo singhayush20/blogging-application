@@ -14,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.FetchType;
 
 
 import lombok.Getter;
@@ -27,9 +28,9 @@ import lombok.Setter;
 @Setter
 public class Post {
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer postId;
-    @Column(name="post_title",length=100,nullable=false)
+    @Column(name="post_title",nullable=false)
     private String title;
     @Column(name="post_content",length=10000,nullable =false)
     private String content;
@@ -40,15 +41,15 @@ public class Post {
     //every post is associated with a category
     //many posts in one category
     @ManyToOne
-    @JoinColumn(name="categoryID",nullable = false)
+    @JoinColumn(name="categoryid",nullable = false)
     private Category category;
     //every post is made by an user
     //many posts for one user
     @ManyToOne
-    @JoinColumn(name="userID",nullable = false)
+    @JoinColumn(name="userid",nullable = false)
     private User user;
 
-    @OneToMany(mappedBy="post",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy="post",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private Set<Comment> comments=new HashSet<>();
 
     

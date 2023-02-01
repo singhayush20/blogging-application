@@ -9,56 +9,62 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ayushsingh.bloggingapplication.constants.AppConstants;
 import com.ayushsingh.bloggingapplication.payloads.ApiResponse;
 import com.ayushsingh.bloggingapplication.payloads.CategoryDto;
+import com.ayushsingh.bloggingapplication.payloads.SuccessResponse;
 import com.ayushsingh.bloggingapplication.services.CategoryService;
 
 @RestController
-@RequestMapping("/api/categories")
+@RequestMapping("/blog/categories")
 public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
 
     // create
-    @PostMapping("/")
-    public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CategoryDto categoryDto) {
+    @PostMapping("/create")
+    public ResponseEntity<SuccessResponse<CategoryDto>> createCategory(@Valid @RequestBody CategoryDto categoryDto) {
         CategoryDto newCategoryDto = this.categoryService.createCategory(categoryDto);
-        return new ResponseEntity<CategoryDto>(newCategoryDto, HttpStatus.CREATED);
+            SuccessResponse<CategoryDto> successResponse=new SuccessResponse<>(AppConstants.SUCCESS_CODE, AppConstants.SUCCESS_MESSAGE, newCategoryDto);
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
     // update
-    @PutMapping("/{catId}")
-    public ResponseEntity<CategoryDto> updateCategory(@PathVariable Integer catId,
+    @PutMapping("/update")
+    public ResponseEntity<SuccessResponse<CategoryDto>> updateCategory(@RequestParam(name="categoryid") Integer catId,
         @Valid    @RequestBody CategoryDto categoryDto) {
-        CategoryDto newCategoryDto = this.categoryService.updateCategory(categoryDto, catId);
-        return new ResponseEntity<CategoryDto>(newCategoryDto, HttpStatus.OK);
+
+        CategoryDto updatedCategoryDto = this.categoryService.updateCategory(categoryDto, catId);
+        SuccessResponse<CategoryDto> successResponse=new SuccessResponse<>(AppConstants.SUCCESS_CODE, AppConstants.SUCCESS_MESSAGE, updatedCategoryDto);
+
+        return new ResponseEntity<>(successResponse,HttpStatus.OK);
     }
 
     // delete
-    @DeleteMapping("/{catId}")
-    public ResponseEntity<ApiResponse> deleteCategory(@PathVariable Integer catId) {
+    @DeleteMapping("/delete")
+    public ResponseEntity<ApiResponse> deleteCategory(@RequestParam(name="categoryid") Integer catId) {
         this.categoryService.deleteCategorybyId(catId);
-        return new ResponseEntity<ApiResponse>(new ApiResponse("category is deleted successfully", true),
+        return new ResponseEntity<ApiResponse>(new ApiResponse("Category deleted successfully", AppConstants.SUCCESS_CODE, AppConstants.SUCCESS_MESSAGE),
                 HttpStatus.OK);
     }
 
     // get by id
-    @GetMapping("/{catId}")
-    public ResponseEntity<CategoryDto> getCategoryById(@PathVariable Integer catId) {
+    @GetMapping("/get-by-id")
+    public ResponseEntity<CategoryDto> getCategoryById(@RequestParam(name="categoryid") Integer catId) {
         CategoryDto categoryDto = this.categoryService.getCategoryById(catId);
         return new ResponseEntity<CategoryDto>(categoryDto, HttpStatus.OK);
     }
 
     // get
-    @GetMapping("/")
+    @GetMapping("/get-all")
     public ResponseEntity<List<CategoryDto>> getCategories() {
         List<CategoryDto> categoryDto = this.categoryService.getAllCategories();
         return new ResponseEntity<List<CategoryDto>>(categoryDto, HttpStatus.OK);

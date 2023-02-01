@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.ayushsingh.bloggingapplication.configs.Appconstants;
 import com.ayushsingh.bloggingapplication.entities.Role;
 import com.ayushsingh.bloggingapplication.entities.User;
+import com.ayushsingh.bloggingapplication.exceptions.DuplicateResourceException;
 import com.ayushsingh.bloggingapplication.exceptions.ResourceNotFoundException;
 import com.ayushsingh.bloggingapplication.payloads.UserDto;
 import com.ayushsingh.bloggingapplication.repositories.RoleRep;
@@ -31,6 +32,10 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
     @Override
     public UserDto createUser(UserDto userDto) {
+        Optional<User> result=userRepo.findByEmail(userDto.getEmail());
+        if(result.isPresent()){
+            throw new DuplicateResourceException("User", "email", userDto.getEmail());
+        }
         //encrypt the password
         // userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
         User user = this.dtoToUser(userDto);
@@ -54,9 +59,10 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException("User","user id",userId);
         }
 
-        user.setName(userDto.getName());
+        user.setUsername(userDto.getUsername());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
         user.setAbout(userDto.getAbout());
-        user.setEmail(userDto.getEmail());
         user.setPassword(user.getPassword());
 
         //save the updated user
@@ -105,25 +111,12 @@ public class UserServiceImpl implements UserService {
     }
 
     private User dtoToUser(UserDto userDto) {
-        // User user = new User();
-        // user.setId(userDto.getId());
-        // user.setAbout(userDto.getAbout());
-        // user.setEmail(userDto.getEmail());
-        // user.setPassword(userDto.getPassword());
-        // user.setName(userDto.getName());
-    
         User user=this.modelMapper.map(userDto,User.class);
         return user;
-
     }
 
     public UserDto usertoDto(User user) {
-        // UserDto userDto = new UserDto();
-        // userDto.setId(user.getId());
-        // userDto.setName(user.getName());
-        // userDto.setEmail(user.getEmail());
-        // userDto.setAbout(user.getAbout());
-        // userDto.setPassword(user.getPassword());
+
         
         UserDto userDto=this.modelMapper.map(user,UserDto.class);
         return userDto;
@@ -131,7 +124,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto registerNewUser(UserDto userDto) {
-        User user=this.modelMapper.map(userDto,User.class);
+        Optional<User> result=userRepo.findByEmail(userDto.getEmail());
+        if(result.isPresent()){
+            throw new DuplicateResourceException("User", "email", userDto.getEmail());
+        }
+        User user=this.dtoToUser(userDto);
         //encode the password
         user.setPassword(this.passwordEncoder.encode(user.getPassword()));
 
@@ -140,7 +137,7 @@ public class UserServiceImpl implements UserService {
         Role role=this.roleRepo.findById(Appconstants.NORMAL_ROLE_ID).get();
         user.getRoles().add(role);
         User newUser=this.userRepo.save(user);
-        return this.modelMapper.map(newUser,UserDto.class);
+        return this.usertoDto(newUser);
     }
 
 }

@@ -10,26 +10,29 @@ import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import javax.persistence.Column;
 import lombok.Setter;
 
 @Entity
-@Table(name="comments")
+@Table(name = "comments")
 @NoArgsConstructor
 @Getter
 @Setter
 public class Comment {
-    
-    @Id
-    @GeneratedValue(strategy =GenerationType.IDENTITY)
-    private int id;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private int commentId;
+
+    @Column(name="description",length=200)
     private String content;
 
     @ManyToOne
-    @JoinColumn(name="postid")
+    @JoinColumn(name = "postid")
     private Post post;
 
-
-    
+    @ManyToOne
+    @JoinColumn(name="userid")
+    private User user;
 
 }

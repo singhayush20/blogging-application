@@ -13,10 +13,12 @@ import lombok.Setter;
 public class CategoryDto {
     
     private Integer categoryId;
-    @NotBlank
-    @Size(min=4)
+
+    @NotBlank(message="Category name cannot be empty")
+    @Size(min=4,max=50)
     private String categoryName;
-    @NotBlank
-    @Size(min=10)
+    
+    @NotBlank(message="Category description cannot be empty")
+    @Size(min=10,message="Category description should be atleast 10 characters long")
     private String categoryDescription;
 }

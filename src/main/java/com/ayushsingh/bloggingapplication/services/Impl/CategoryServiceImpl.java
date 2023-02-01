@@ -9,9 +9,13 @@ import org.springframework.stereotype.Service;
 
 import com.ayushsingh.bloggingapplication.entities.Category;
 import com.ayushsingh.bloggingapplication.exceptions.ResourceNotFoundException;
+import com.ayushsingh.bloggingapplication.exceptions.DuplicateResourceException;
+
 import com.ayushsingh.bloggingapplication.payloads.CategoryDto;
 import com.ayushsingh.bloggingapplication.repositories.CategoryRep;
 import com.ayushsingh.bloggingapplication.services.CategoryService;
+import java.util.Optional;
+
 @Service
 public class CategoryServiceImpl implements CategoryService {
     @Autowired
@@ -21,9 +25,12 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto createCategory(CategoryDto categoryDto) {
-        Category category = this.modelMapper.map(categoryDto, Category.class);
-        Category addedCategory = categoryRep.save(category);
-        
+        Optional<Category> category = this.categoryRep.findByCategoryName(categoryDto.getCategoryName());
+        if (category.isPresent()) {
+            throw new DuplicateResourceException("Category", "email", categoryDto.getCategoryName());
+        }
+        Category addedCategory = categoryRep.save(this.modelMapper.map(categoryDto, Category.class));
+
         return this.modelMapper.map(addedCategory, CategoryDto.class);
     }
 

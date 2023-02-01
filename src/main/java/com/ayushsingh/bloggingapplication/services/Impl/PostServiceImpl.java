@@ -47,8 +47,6 @@ public class PostServiceImpl implements PostService {
                 Post post = this.modelMapper.map(postDto, Post.class);
                 post.setImage(postDto.getImage());
                 post.setAddDate(new Date());
-                // post.setUser(postDto.getUser());
-                // post.setCategory(postDto.getCategory());
                 post.setUser(user);
                 post.setCategory(category);
                 post.setTitle(postDto.getTitle());
@@ -165,5 +163,6 @@ public class PostServiceImpl implements PostService {
                                 .collect(Collectors.toList());
                 return newPosts;
         }
+
 
 }

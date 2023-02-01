@@ -20,9 +20,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import com.ayushsingh.bloggingapplication.security.CustomUserDetailsService;
 import com.ayushsingh.bloggingapplication.security.JwtAuthenticationFilter;
 
-/**
- * SecurityConfigs
- */
+
+
 // @Configuration
 // @EnableWebSecurity
 // @EnableGlobalMethodSecurity(prePostEnabled = true) //this will allow to apply

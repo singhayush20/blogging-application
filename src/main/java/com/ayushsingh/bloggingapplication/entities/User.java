@@ -39,14 +39,29 @@ public class User implements UserDetails{
                                                     // for IDENTITY, a default value for Id has to be set, else
                                                     // exception is thrown
     private int id;
-    @Column(name = "user_name", nullable = false, length = 100)
-    private String name;
+    @Column(name = "username", nullable = false, length = 100,unique=true)
+    private String username;
+
+    @Column(name="firstname",nullable=false,length=50)
+    private String firstName;
+
+    @Column(name="lastname",length=50)
+    private String lastName;
+
+    @Column(unique = true,nullable = false)
     private String email;
+
+    @Column(nullable=false)
     private String password;
+
+    @Column(name="description")
     private String about;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy="user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<Comment> comments=new ArrayList<>();
 
     @ManyToMany(cascade = CascadeType.ALL/*Save role when user is saved*/, fetch = FetchType.EAGER) // each user can have many roles
     @JoinTable(name = "user_role", // the name of the table which manages this relationship

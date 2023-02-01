@@ -19,16 +19,25 @@ public class UserDto {
     private int id;
     @NotBlank(message = "username cannot be empty")
     @Size(min=5,message="username must be greater than 4 characters")
-    private String name;
+    private String username;
+
     @Email(message = "Email is not Valid!")
     private String email;
+
     @NotBlank(message = "Password cannot be empty")
-    @Size(min=8,message = "Password must be atleast 8 characters long")
-    // @Pattern(regexp ="[ A-Za-z0-9_@./#&+-]",message=" ")
-    //One should use @JsonIgnore to exclude the password
+    @Size(min=8,message = "Password must be atleast 8 characters long")   
     private String password;
+
     @NotBlank(message = "bio cannot be empty")
     private String about;
+
     private Set<RoleDto> roles = new HashSet<>();
+
+    @NotBlank(message = "first name cannot be blank")
+    @Size(max = 50, message="first name cannot be more than 50 characters")
+    private String firstName;
+
+    @Size(max=50, message="last name cannot be more than 50 characters")
+    private String lastName;
 
 }

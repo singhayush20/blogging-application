@@ -4,36 +4,47 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.GetMapping;
 
-import com.ayushsingh.bloggingapplication.payloads.ApiResponse;
+import com.ayushsingh.bloggingapplication.constants.AppConstants;
 import com.ayushsingh.bloggingapplication.payloads.CommentDto;
+import com.ayushsingh.bloggingapplication.payloads.SuccessResponse;
 import com.ayushsingh.bloggingapplication.services.CommentService;
-
+import java.util.List;
 @RestController
-@RequestMapping("/api/comments")
+@RequestMapping("/blog/comments")
 public class CommentController {
 
     @Autowired
     CommentService commentService;
 
-    @PostMapping("/post/{postId}/comments")
-    public ResponseEntity<CommentDto> createComment(@RequestBody CommentDto commentDto,
-            @PathVariable(name = "postId") Integer postId) {
-        CommentDto comment = this.commentService.createComment(commentDto, postId);
+    @PostMapping("/create")
+    public ResponseEntity<SuccessResponse<CommentDto>> createComment(@RequestBody CommentDto commentDto,
+            @RequestParam(name = "postid") Integer postId) {
+                CommentDto comment = this.commentService.createComment(commentDto, postId);
+                SuccessResponse<CommentDto> successResponse=new SuccessResponse<>(AppConstants.SUCCESS_CODE, AppConstants.SUCCESS_MESSAGE, comment);
 
-        return new ResponseEntity<CommentDto>(comment, HttpStatus.OK);
+        return new ResponseEntity<SuccessResponse<CommentDto>>(successResponse, HttpStatus.OK);
     }
 
-    @DeleteMapping("post/delete/comments/{commentId}")
-    public ResponseEntity<ApiResponse> deleteComment(@PathVariable(name = "commentId") Integer commentId) {
+    @DeleteMapping("/delete")
+    public ResponseEntity<SuccessResponse<String>> deleteComment(@RequestParam(name = "commentid") Integer commentId) {
 
         this.commentService.deleteComment(commentId);
-        return new ResponseEntity<ApiResponse>(new ApiResponse("comment deleted successfully", true), HttpStatus.OK);
+        SuccessResponse<String> successResponse=new SuccessResponse<String>(AppConstants.SUCCESS_CODE, AppConstants.SUCCESS_MESSAGE, "Comment deleted successfully");
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
+    }
 
+    @GetMapping("/get-comments-by-post")
+    public ResponseEntity<SuccessResponse<List<CommentDto>>> commentDto(@RequestParam("postid") Integer postid){
+        List<CommentDto> comments=this.commentService.findByPost(postid);
+        SuccessResponse<List<CommentDto>> successResponse=new SuccessResponse<>(AppConstants.SUCCESS_CODE, AppConstants.SUCCESS_MESSAGE, comments);
+
+        return new ResponseEntity<>(successResponse,HttpStatus.OK);
     }
 }

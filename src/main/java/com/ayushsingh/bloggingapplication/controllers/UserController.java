@@ -10,75 +10,75 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ayushsingh.bloggingapplication.payloads.ApiResponse;
+import com.ayushsingh.bloggingapplication.constants.AppConstants;
+import com.ayushsingh.bloggingapplication.payloads.SuccessResponse;
 import com.ayushsingh.bloggingapplication.payloads.UserDto;
 import com.ayushsingh.bloggingapplication.services.UserService;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/blog/users")
 public class UserController {
 
     @Autowired
     private UserService userService;
 
     // POST- create user
-    @PostMapping("/")
-    public ResponseEntity<UserDto> createUser(@Valid /* Enable validation */ @RequestBody UserDto userDto) {
+    @PostMapping("/new-user")
+    public ResponseEntity<SuccessResponse<UserDto>> createUser(
+            @Valid /* Enable validation */ @RequestBody UserDto userDto) {
         UserDto createdUserDto = this.userService.createUser(userDto);
-        return new ResponseEntity<UserDto>(createdUserDto, HttpStatus.CREATED);
+        SuccessResponse<UserDto> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
+                AppConstants.SUCCESS_MESSAGE, createdUserDto);
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
     // PUT- update user
-    @PutMapping("/{userid}") // userid is a path uri variable, we will use it fetch data
+    @PutMapping("/update-user") // userid is a path uri variable, we will use it fetch data
     // @PathVariable("userid") if the variable name is same as mapping, we need not
     // specify like this
-    public ResponseEntity<UserDto> updateUser(/* Enable Validation */ @Valid @RequestBody UserDto userDto,
-            @PathVariable("userid") Integer uid) {
+    public ResponseEntity<SuccessResponse<UserDto>> updateUser(
+            /* Enable Validation */ @Valid @RequestBody UserDto userDto,
+            @RequestParam(name = "userid") Integer uid) {
         UserDto updatedUser = this.userService.updateUser(userDto, uid);
-        return ResponseEntity.ok(updatedUser);
+        SuccessResponse<UserDto> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
+                AppConstants.SUCCESS_MESSAGE, updatedUser);
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
 
     }
-    // DELETE- delete user
-    // @DeleteMapping("/{userid}")
-    // public ResponseEntity<?> deleteUser(@PathVariable("userId") Integer uid){
-    // // ResponseEntity<?> deletedUser=
-    // this.userService.deleteUser(uid);
-    // return ResponseEntity.ok(Map.of("message","user deleted successfully"));
-    // // OR
-    // return ResponseEntity(Map.of("message","user deleted
-    // successfully"),HttpStatus.OK);
-
-    // }
-    // OR
 
     // ADMIN ROLE CAN USE THIS API
-    @PreAuthorize("hasRole('ROLE_ADMIN')") // NOW ONLY THE USERS WITH ADMIN ROLES WILL BE PERMITTED
-    @DeleteMapping("/{userid}")
-    public ResponseEntity<ApiResponse> deleteUser(@PathVariable("userid") Integer uid) {
+    // @PreAuthorize("hasRole('ROLE_ADMIN')") // NOW ONLY THE USERS WITH ADMIN ROLES
+    // WILL BE PERMITTED
+    @DeleteMapping("/delete-user")
+    public ResponseEntity<SuccessResponse<String>> deleteUser(@RequestParam(name = "userid") Integer uid) {
 
         // ResponseEntity<?> deletedUser=
         this.userService.deleteUser(uid);
-        return new ResponseEntity<ApiResponse>(new ApiResponse("user deleted successfully", true), HttpStatus.OK);
-
+        SuccessResponse<String> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
+                AppConstants.SUCCESS_MESSAGE, "User deleted successfully");
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
     // GET- user get
-    @GetMapping("/")
-    public ResponseEntity<List<UserDto>> getAllusers() {
-        return ResponseEntity.ok(this.userService.getAllUsers());
+    @GetMapping("/get-all-users")
+    public ResponseEntity<SuccessResponse<List<UserDto>>> getAllusers() {
+        SuccessResponse<List<UserDto>> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
+                AppConstants.SUCCESS_MESSAGE, this.userService.getAllUsers());
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/{userid}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable("userid") Integer uid) {
-
-        return ResponseEntity.ok(this.userService.getUserById(uid));
+    @GetMapping("/get-user-by-id")
+    public ResponseEntity<SuccessResponse<UserDto>> getUserById(@RequestParam(name = "userid") Integer uid) {
+        SuccessResponse<UserDto> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
+                AppConstants.SUCCESS_MESSAGE, this.userService.getUserById(uid));
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
 }

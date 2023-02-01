@@ -1,18 +1,18 @@
-spring:
-  datasource:
-    url: jdbc:sqlserver://blogging-application-database.database.windows.net:1433;database=blogging-application-db;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;
-    username: ayushsingh@blogging-application-database
-    password: Ayush123
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: update
-    # properties:
-    #   dialect : org.hibernate.dialect.SQLServer2012Dialect
-    #   hibernate:
-    #     '[globally_quoted_identifiers: true]'
-    #   properties:
-    #     dialect : org.hibernate.dialect.SQLServer2012Dialect
+# spring:
+#   datasource:
+#     url: jdbc:sqlserver://blogging-application-database.database.windows.net:1433;database=blogging-application-db;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;
+#     username: ayushsingh@blogging-application-database
+#     password: Ayush123
+#   jpa:
+#     show-sql: true
+#     hibernate:
+#       ddl-auto: update
+#     # properties:
+#     #   dialect : org.hibernate.dialect.SQLServer2012Dialect
+#     #   hibernate:
+#     #     '[globally_quoted_identifiers: true]'
+#     #   properties:
+#     #     dialect : org.hibernate.dialect.SQLServer2012Dialect
 
-server:
-  port: 8085
+# server:
+#   port: 8085
