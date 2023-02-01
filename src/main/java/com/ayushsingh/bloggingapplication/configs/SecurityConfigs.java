@@ -111,7 +111,8 @@ public class SecurityConfigs {
         "/v2/api-docs",//to use swagger UI
         "/swagger-resources/**",
         "/swagger-ui/**",
-        "/webjars/**"
+        "/webjars/**",
+        "/blog/authenticate/verifyemail/**"
     };
 
     @Autowired

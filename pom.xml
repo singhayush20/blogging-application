@@ -89,6 +89,18 @@
 			<artifactId>javax.mail</artifactId>
 			<version>1.6.2</version>
 		  </dependency>
+		   <!--13. Email Service https://mvnrepository.com/artifact/com.sun.mail/javax.mail -->
+		 <dependency>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>javax.mail</artifactId>
+			<version>1.6.2</version>
+		  </dependency>
+		  <!--14. Guava for otp-->
+		  <dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>31.1-jre</version>
+		</dependency>
 	</dependencies>
 
 	<build>
