@@ -2,7 +2,6 @@ package com.ayushsingh.bloggingapplication.controllers;
 
 import java.util.List;
 
-import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +20,8 @@ import com.ayushsingh.bloggingapplication.payloads.ApiResponse;
 import com.ayushsingh.bloggingapplication.payloads.CategoryDto;
 import com.ayushsingh.bloggingapplication.payloads.SuccessResponse;
 import com.ayushsingh.bloggingapplication.services.CategoryService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/blog/categories")

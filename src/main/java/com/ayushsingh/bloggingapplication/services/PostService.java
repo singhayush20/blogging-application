@@ -4,11 +4,12 @@ import java.util.List;
 
 import com.ayushsingh.bloggingapplication.payloads.PostDto;
 import com.ayushsingh.bloggingapplication.payloads.PostResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface PostService {
     
     //create
-    PostDto createPost(PostDto postDto,Integer userId, Integer categoryId);
+    PostDto createPost(PostDto postDto,Integer userId, Integer categoryId, MultipartFile file);
 
     //update
     PostDto updatePost(PostDto postDto, Integer postId);

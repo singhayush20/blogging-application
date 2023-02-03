@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.ayushsingh.bloggingapplication.constants.AppConstants;
 import com.ayushsingh.bloggingapplication.entities.Category;
 import com.ayushsingh.bloggingapplication.entities.Post;
 import com.ayushsingh.bloggingapplication.entities.User;
@@ -22,8 +23,16 @@ import com.ayushsingh.bloggingapplication.repositories.CategoryRep;
 import com.ayushsingh.bloggingapplication.repositories.PostRep;
 import com.ayushsingh.bloggingapplication.repositories.UserRep;
 import com.ayushsingh.bloggingapplication.services.PostService;
+import com.ayushsingh.bloggingapplication.util.ImageUtil.MyBlobService;
+
+import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+
+import org.springframework.web.multipart.MultipartFile;
+import com.ayushsingh.bloggingapplication.exceptions.BlobException;
 
 @Service
+@Slf4j
 public class PostServiceImpl implements PostService {
 
         @Autowired
@@ -36,8 +45,11 @@ public class PostServiceImpl implements PostService {
         @Autowired
         private ModelMapper modelMapper;
 
+        @Autowired
+        private MyBlobService blobService;
+
         @Override
-        public PostDto createPost(PostDto postDto, Integer userId, Integer categoryId) {
+        public PostDto createPost(PostDto postDto, Integer userId, Integer categoryId, MultipartFile file) {
 
                 User user = this.userRep.findById(userId)
                                 .orElseThrow(() -> new ResourceNotFoundException("user", "user id", userId));
@@ -45,14 +57,33 @@ public class PostServiceImpl implements PostService {
                                 .orElseThrow(() -> new ResourceNotFoundException("category", "category id",
                                                 categoryId));
                 Post post = this.modelMapper.map(postDto, Post.class);
-                post.setImage(postDto.getImage());
-                post.setAddDate(new Date());
-                post.setUser(user);
-                post.setCategory(category);
-                post.setTitle(postDto.getTitle());
-                post.setContent(postDto.getContent());
-                // save to the database
-                Post newPost = this.postRep.save(post);
+
+                Post newPost = null;
+                // save image
+                if (file != null) {
+                        log.info("Filename :" + file.getOriginalFilename());
+                        log.info("Size:" + file.getSize());
+                        log.info("Contenttype:" + file.getContentType());
+                        try {
+
+                                blobService.storeFile(file.getOriginalFilename(), file.getInputStream(),
+                                                file.getSize());
+                                post.setImage(file.getOriginalFilename());
+                                post.setAddDate(new Date());
+                                post.setUser(user);
+                                post.setCategory(category);
+                                post.setTitle(postDto.getTitle());
+                                post.setContent(postDto.getContent());
+                                // save to the database
+                                newPost = this.postRep.save(post);
+
+                        } catch (IOException ex) {
+                                throw new BlobException(AppConstants.ERROR_CODE, AppConstants.ERROR_MESSAGE,
+                                                file.getOriginalFilename() + " could not be saved!");
+                        }
+
+                }
+
                 return this.modelMapper.map(newPost, PostDto.class);
 
         }
@@ -66,7 +97,7 @@ public class PostServiceImpl implements PostService {
                 post.setImage(postDto.getImage());
                 post.setTitle(postDto.getTitle());
 
-                Post updatedPost=this.postRep.save(post);
+                Post updatedPost = this.postRep.save(post);
 
                 return this.modelMapper.map(updatedPost, PostDto.class);
 
@@ -163,6 +194,5 @@ public class PostServiceImpl implements PostService {
                                 .collect(Collectors.toList());
                 return newPosts;
         }
-
 
 }

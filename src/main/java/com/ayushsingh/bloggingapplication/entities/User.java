@@ -7,23 +7,22 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -39,8 +38,7 @@ public class User implements UserDetails{
                                                     // for IDENTITY, a default value for Id has to be set, else
                                                     // exception is thrown
     private int id;
-    @Column(name = "username", nullable = false, length = 100,unique=true)
-    private String username;
+  
 
     @Column(name="firstname",nullable=false,length=50)
     private String firstName;
@@ -132,4 +130,13 @@ public boolean isEnabled() {
         //user is true by default
         return true;
 }
+
+@Override
+public String toString() {
+        return "User [id=" + id + ", username=" + ", firstName=" + firstName + ", lastName=" + lastName
+                        + ", email=" + email + ", password=" + password + ", about=" + about + ", posts=" + posts
+                        + ", comments=" + comments + ", roles=" + roles + "]";
+}
+
+
 }

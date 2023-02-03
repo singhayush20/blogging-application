@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.mail.internet.AddressException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +14,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.ayushsingh.bloggingapplication.payloads.ApiResponse;
+
+import jakarta.mail.internet.AddressException;
+
 import com.ayushsingh.bloggingapplication.constants.AppConstants;
 @RestControllerAdvice // this will make the class work like an exception handler
 public class GlobalExceptionHandler {
@@ -95,6 +97,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse> addressException(MissingServletRequestParameterException ex) {
         String message = ex.getMessage();
         ApiResponse apiResponse = new ApiResponse(AppConstants.ERROR_CODE, message, AppConstants.ERROR_MESSAGE);
+        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(BlobException.class)
+    public ResponseEntity<ApiResponse> blobException(BlobException ex) {
+        String message = ex.getMessage();
+        ApiResponse apiResponse = new ApiResponse(ex.getCode(), message, message);
         return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.NOT_FOUND);
     }
 }

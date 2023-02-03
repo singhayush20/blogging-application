@@ -59,7 +59,6 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException("User","user id",userId);
         }
 
-        user.setUsername(userDto.getUsername());
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
         user.setAbout(userDto.getAbout());
@@ -119,6 +118,7 @@ public class UserServiceImpl implements UserService {
 
         
         UserDto userDto=this.modelMapper.map(user,UserDto.class);
+       
         return userDto;
     }
 
@@ -137,6 +137,7 @@ public class UserServiceImpl implements UserService {
         Role role=this.roleRepo.findById(Appconstants.NORMAL_ROLE_ID).get();
         user.getRoles().add(role);
         User newUser=this.userRepo.save(user);
+        System.out.println(this.getClass().getName()+": new user: "+newUser);
         return this.usertoDto(newUser);
     }
 

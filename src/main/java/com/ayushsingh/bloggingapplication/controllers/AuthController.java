@@ -13,15 +13,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ayushsingh.bloggingapplication.constants.AppConstants;
 import com.ayushsingh.bloggingapplication.exceptions.APIException;
 import com.ayushsingh.bloggingapplication.payloads.JWTAuthRequest;
 import com.ayushsingh.bloggingapplication.payloads.JWTAuthResponse;
 import com.ayushsingh.bloggingapplication.payloads.UserDto;
 import com.ayushsingh.bloggingapplication.security.JwtTokenHelper;
 import com.ayushsingh.bloggingapplication.services.UserService;
-
+import com.ayushsingh.bloggingapplication.payloads.SuccessResponse;
 @RestController
-@RequestMapping("api/v1/auth/")
+@RequestMapping("/blog/auth/")
 public class AuthController {
     // to generate the token
     @Autowired
@@ -38,7 +39,7 @@ public class AuthController {
     private AuthenticationManager authenticationManager;
 
     @PostMapping("/login")
-    public ResponseEntity<JWTAuthResponse> createToken(
+    public ResponseEntity<SuccessResponse<JWTAuthResponse>> createToken(
         @RequestBody JWTAuthRequest request
     ) throws Exception{
         this.authenticate(request.getUsername(),request.getPassword());
@@ -48,7 +49,8 @@ public class AuthController {
         //send this token in the response
         JWTAuthResponse response=new JWTAuthResponse();
         response.setToken(generatedToken);
-        return new  ResponseEntity<JWTAuthResponse>(response,HttpStatus.OK);
+        SuccessResponse<JWTAuthResponse> successResponse=new SuccessResponse<>(AppConstants.SUCCESS_CODE,AppConstants.SUCCESS_MESSAGE,response);
+        return new  ResponseEntity<>(successResponse,HttpStatus.OK);
     }
 
     private void authenticate(String username, String password) throws Exception {
@@ -72,9 +74,10 @@ public class AuthController {
 
     //Register new user api
     @PostMapping("/register")
-    public ResponseEntity<UserDto> registerUser(@RequestBody UserDto userDto){
+    public ResponseEntity<SuccessResponse<UserDto>> registerUser(@RequestBody UserDto userDto){
         UserDto registeredUser=this.userService.registerNewUser(userDto);
-        return new ResponseEntity<UserDto>(registeredUser,HttpStatus.OK);
+        SuccessResponse<UserDto> successResponse=new SuccessResponse<>(AppConstants.SUCCESS_CODE,AppConstants.SUCCESS_MESSAGE,registeredUser);
+        return new ResponseEntity<>(successResponse,HttpStatus.OK);
     }
 
 }
