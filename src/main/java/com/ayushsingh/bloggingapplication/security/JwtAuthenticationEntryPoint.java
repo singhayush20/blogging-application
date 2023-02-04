@@ -32,7 +32,9 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint{
                 System.out.println("inside Entry point commence method: user is unauthorized");
                 //following response will be sent when a user is unauthorized 
                 //to access the apis
+        
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED,"Access Denied!");
+       
         
     }
     

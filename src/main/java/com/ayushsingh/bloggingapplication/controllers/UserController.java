@@ -2,7 +2,6 @@ package com.ayushsingh.bloggingapplication.controllers;
 
 import java.util.List;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,12 +43,12 @@ public class UserController {
     @PutMapping("/update-user") // userid is a path uri variable, we will use it fetch data
     // @PathVariable("userid") if the variable name is same as mapping, we need not
     // specify like this
-    public ResponseEntity<SuccessResponse<UserDto>> updateUser(
+    public ResponseEntity<SuccessResponse<String>> updateUser(
             /* Enable Validation */ @Valid @RequestBody UserDto userDto,
             @RequestParam(name = "userid") Integer uid) {
-        UserDto updatedUser = this.userService.updateUser(userDto, uid);
-        SuccessResponse<UserDto> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
-                AppConstants.SUCCESS_MESSAGE, updatedUser);
+        this.userService.updateUser(userDto, uid);
+        SuccessResponse<String> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
+                AppConstants.SUCCESS_MESSAGE, "Profile updated successfully");
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
 
     }
@@ -75,10 +74,10 @@ public class UserController {
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 
-    @GetMapping("/get-user-by-id")
-    public ResponseEntity<SuccessResponse<UserDto>> getUserById(@RequestParam(name = "userid") Integer uid) {
+    @GetMapping("/get-user-by-email")
+    public ResponseEntity<SuccessResponse<UserDto>> getUserByEmail(@RequestParam(name = "email") String email) {
         SuccessResponse<UserDto> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
-                AppConstants.SUCCESS_MESSAGE, this.userService.getUserById(uid));
+                AppConstants.SUCCESS_MESSAGE, this.userService.getUserByEmail(email));
         return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 

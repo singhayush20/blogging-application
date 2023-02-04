@@ -70,8 +70,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto getUserById(Integer userId) {
-        Optional<User> result=userRepo.findById(userId);
+    public UserDto getUserByEmail(String email) {
+        Optional<User> result=userRepo.findByEmail(email);
         User user=null;
         if(result.isPresent()){
             //get the user
@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserService {
         }
         else{
             //throw an exception if the user is not found
-            throw new ResourceNotFoundException("User","user id",userId);
+            throw new ResourceNotFoundException("User","email: "+email,0);
         }
         return this.usertoDto(user);
     }

@@ -1,5 +1,7 @@
 package com.ayushsingh.bloggingapplication.configs;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,8 +22,12 @@ import org.springframework.web.servlet.config.annotation.ContentNegotiationConfi
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.ayushsingh.bloggingapplication.constants.AppConstants;
 import com.ayushsingh.bloggingapplication.security.CustomUserDetailsService;
 import com.ayushsingh.bloggingapplication.security.JwtAuthenticationFilter;
+import com.nimbusds.jose.shaded.json.JSONObject;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
@@ -56,14 +62,23 @@ public class SecurityConfigs {
                 // .permitAll()
                 // .antMatchers("/v3/api-docs")//for swagger api documentation
                 // .permitAll()// permit these urls to be accessed directly
-                .requestMatchers(HttpMethod.GET)
-                .permitAll() // allow all the get APIs to be accessible without login
+                // .requestMatchers(HttpMethod.GET)
+                // .permitAll() // allow all the get APIs to be accessible without login
                 .anyRequest() // authorize all requests
                 .authenticated() // authenticate
                 .and()
                 .exceptionHandling()// for jwt authentication (not required with basic authentication)
-                .authenticationEntryPoint(this.authenticationEntryPoint)// for jwt authentication (not required with
-                                                                        // basic authentication)
+
+                .authenticationEntryPoint((request, response, e) -> {
+                    JSONObject responseObject = new JSONObject();
+                    responseObject.put("message", "Access Denied");
+                    responseObject.put("status", AppConstants.FAILURE_MESSAGE);
+                    responseObject.put("code", AppConstants.FAILURE_CODE);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.getWriter().write(responseObject.toString());
+                })// for jwt authentication (not required with
+                  // basic authentication)
                 /*
                  * These two lines will ensure that if ever any error occurs due to
                  * authentication unauthorization
