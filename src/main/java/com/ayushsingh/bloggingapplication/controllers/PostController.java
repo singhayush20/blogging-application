@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -57,30 +57,41 @@ public class PostController {
                 return myBlobService.listFiles();
         }
 
-        // download an image
-        @GetMapping("downloadimage/{filename}")
-        public ResponseEntity<?> downloadImage(@PathVariable String filename) {
-                byte[] image = myBlobService.downloadFile(filename).toByteArray();
-                return ResponseEntity.status(HttpStatus.OK)
-                                .contentType(MediaType.valueOf("image/png"))
-                                .body(image);
-        }
+        
 
         // create
         @PostMapping("/create")
-        public ResponseEntity<SuccessResponse<PostDto>> createPost(@RequestBody PostDto postDto,
-                        @RequestParam(name = "userid") Integer uid,
-                        @RequestParam(name = "categoryid") Integer categoryId,
-                        @RequestParam("file") MultipartFile file) {
+        public ResponseEntity<SuccessResponse<PostDto>> createPost(@RequestBody
+        PostDto postDto,
+        @RequestParam(name = "userid") Integer uid,
+        @RequestParam(name = "categoryid") Integer categoryId) {
 
-                // log.info("Filename :" + file.getOriginalFilename());
-                // log.info("Size:" + file.getSize());
-                // log.info("Contenttype:" + file.getContentType());
-                PostDto newPost = this.postService.createPost(postDto, uid, categoryId,file);
-                SuccessResponse<PostDto> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
-                                AppConstants.SUCCESS_MESSAGE, newPost);
-                return new ResponseEntity<>(successResponse, HttpStatus.OK);
+
+        PostDto newPost = this.postService.createPost(postDto, uid, categoryId);
+        SuccessResponse<PostDto> successResponse = new
+        SuccessResponse<>(AppConstants.SUCCESS_CODE,
+        AppConstants.SUCCESS_MESSAGE, newPost);
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
         }
+        // @PostMapping(value = "/create",consumes = {MediaType.APPLICATION_JSON_VALUE,MediaType.MULTIPART_FORM_DATA_VALUE})
+        // public ResponseEntity<SuccessResponse<PostDto>> createPost(
+        //         @RequestPart("post") String post,
+        //                 @RequestPart("image") MultipartFile file,
+        //                 @RequestParam(name = "userid") Integer uid,
+        //                 @RequestParam(name = "categoryid") Integer categoryId) {
+
+        //         log.info("Filename :" + file.getOriginalFilename());
+        //         log.info("Size:" + file.getSize());
+        //         log.info("Contenttype:" + file.getContentType());
+
+        //         //convert the post string to POJO
+        //         // PostDto postDto=postService.getJson(post);
+        //         //Now create the post
+        //         // PostDto newPost = this.postService.createPost(postDto, uid, categoryId, file);
+        //         SuccessResponse<PostDto> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
+        //                         AppConstants.SUCCESS_MESSAGE, new PostDto());
+        //         return new ResponseEntity<>(successResponse, HttpStatus.OK);
+        // }
 
         // get post by user id
         @GetMapping(value = "/get-post-by-user")
@@ -130,9 +141,9 @@ public class PostController {
         // delete post
         @DeleteMapping(value = "/delete")
         public ResponseEntity<SuccessResponse<String>> deletePost(@RequestParam(name = "postid") Integer postId) {
-                this.postService.deletePost(postId);
+              String postDeleted=  this.postService.deletePost(postId);
                 SuccessResponse<String> successResponse = new SuccessResponse<String>(AppConstants.SUCCESS_CODE,
-                                AppConstants.SUCCESS_MESSAGE, "Post deleted successfully");
+                                AppConstants.SUCCESS_MESSAGE, postDeleted);
                 return new ResponseEntity<>(successResponse, HttpStatus.OK);
         }
 
@@ -167,38 +178,66 @@ public class PostController {
                 return new ResponseEntity<>(successResponse, HttpStatus.OK);
         }
 
+        
+
+        //delete image
+        @DeleteMapping("/deleteimage")
+        public ResponseEntity<SuccessResponse<String>> deletePostImage(@RequestParam(name="postid") int postid){
+                String result=this.postService.deleteImage(postid);
+                SuccessResponse<String> successResponse=new SuccessResponse<>(AppConstants.SUCCESS_CODE,AppConstants.SUCCESS_MESSAGE,result);
+                return new ResponseEntity<>(successResponse,HttpStatus.OK);
+        }
+
+        // download an image
+        @GetMapping("downloadimage/{filename}")
+        public ResponseEntity<?> downloadImage(@PathVariable String filename) {
+                byte[] image = myBlobService.downloadFile(filename).toByteArray();
+                return ResponseEntity.status(HttpStatus.OK)
+                                .contentType(MediaType.valueOf("image/png"))
+                                .body(image);
+        }
+        //upload or update image isUpdatingPost=true: replace image false: upload new image with new post
+        @PostMapping("/upload")
+        public ResponseEntity<SuccessResponse<String>> uploadFile(@RequestParam MultipartFile file,@RequestParam Integer postid, @RequestParam boolean isUpdatingPost) throws IOException {
+                log.info("File name: "+file.getOriginalFilename());
+                String result=this.postService.uploadImage(file, postid, isUpdatingPost);
+                SuccessResponse<String> response=new SuccessResponse<>(AppConstants.SUCCESS_CODE,AppConstants.SUCCESS_MESSAGE,result);
+                return new ResponseEntity<>(response,HttpStatus.OK);
+        }
+
         /*----------------------------------------------------------------------------------------------------------------- */
         // post image upload
-        @PostMapping("/post/image/upload/{postId}")
-        public ResponseEntity<PostDto> uploadPostImage(
-                        @RequestParam("image") MultipartFile image,
-                        @PathVariable(name = "postId") Integer postId) throws IOException {
-                // image file name of the file being uploaded
-                String fileName;
-                PostDto postDto, updatedPostDto;
-                // first find the post
-                postDto = this.postService.getPostById(postId);
+        // @PostMapping(value="/post/image/upload/{postId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+        // public ResponseEntity<PostDto> uploadPostImage(
+        //                 @RequestParam("image") MultipartFile image,
+        //                 @PathVariable(name = "postId") Integer postId) throws IOException {
+        //         // image file name of the file being uploaded
+        //         String fileName;
+        //         PostDto postDto, updatedPostDto;
+        //         // first find the post
+        //         postDto = this.postService.getPostById(postId);
 
-                fileName = this.fileService.uploadImage(path, image);
+        //         fileName = this.fileService.uploadImage(path, image);
 
-                postDto.setImage(fileName);
+        //         postDto.setImage(fileName);
 
-                updatedPostDto = this.postService.updatePost(postDto, postId);
+        //         updatedPostDto = this.postService.updatePost(postDto, postId);
 
-                return new ResponseEntity<PostDto>(updatedPostDto, HttpStatus.OK);
+        //         return new ResponseEntity<PostDto>(updatedPostDto, HttpStatus.OK);
 
-        }
+        // }
 
-        @GetMapping(value = "post/image/{imageName}", produces = MediaType.IMAGE_JPEG_VALUE)
-        public void downloadImage(
-                        @PathVariable(name = "imageName") String imageName,
-                        HttpServletResponse response) throws IOException {
+        // @GetMapping(value = "post/image/{imageName}", produces = MediaType.IMAGE_JPEG_VALUE)
+        // public void downloadImage(
+        //                 @PathVariable(name = "imageName") String imageName,
+        //                 HttpServletResponse response) throws IOException {
 
-                InputStream resource = this.fileService.getResource(path, imageName);
+        //         InputStream resource = this.fileService.getResource(path, imageName);
 
-                response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+        //         response.setContentType(MediaType.IMAGE_JPEG_VALUE);
 
-                StreamUtils.copy(resource, response.getOutputStream());
-        }
+        //         StreamUtils.copy(resource, response.getOutputStream());
+        // }
 
+        
 }

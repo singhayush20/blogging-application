@@ -24,8 +24,12 @@ import com.ayushsingh.bloggingapplication.repositories.PostRep;
 import com.ayushsingh.bloggingapplication.repositories.UserRep;
 import com.ayushsingh.bloggingapplication.services.PostService;
 import com.ayushsingh.bloggingapplication.util.ImageUtil.MyBlobService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.mail.Multipart;
 import lombok.extern.slf4j.Slf4j;
+
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -48,8 +52,12 @@ public class PostServiceImpl implements PostService {
         @Autowired
         private MyBlobService blobService;
 
+        @Autowired
+        private ObjectMapper objectMapper;
+
+        // create post with title and content
         @Override
-        public PostDto createPost(PostDto postDto, Integer userId, Integer categoryId, MultipartFile file) {
+        public PostDto createPost(PostDto postDto, Integer userId, Integer categoryId) {
 
                 User user = this.userRep.findById(userId)
                                 .orElseThrow(() -> new ResourceNotFoundException("user", "user id", userId));
@@ -60,41 +68,75 @@ public class PostServiceImpl implements PostService {
 
                 Post newPost = null;
                 // save image
+                // if (file != null) {
+                // log.info("Filename :" + file.getOriginalFilename());
+                // log.info("Size:" + file.getSize());
+                // log.info("Contenttype:" + file.getContentType());
+                // try {
+
+                // blobService.storeFile(file.getOriginalFilename(), file.getInputStream(),
+                // file.getSize());
+                // post.setImage(file.getOriginalFilename());
+                post.setAddDate(new Date());
+                post.setUser(user);
+                post.setCategory(category);
+                post.setTitle(postDto.getTitle());
+                post.setContent(postDto.getContent());
+                // save to the database
+                newPost = this.postRep.save(post);
+
+                // } catch (IOException ex) {
+                // throw new BlobException(AppConstants.ERROR_CODE, AppConstants.ERROR_MESSAGE,
+                // file.getOriginalFilename() + " could not be saved!");
+                // }
+
+                // }
+
+                return this.modelMapper.map(newPost, PostDto.class);
+
+        }
+
+        // upload an image to the post
+        @Override
+        public String uploadImage(MultipartFile file, int postid, boolean isUpdatingPost) {
+                Post post = postRep.findById(postid)
+                                .orElseThrow(() -> new ResourceNotFoundException("Post", "post id", postid));
+
+                // if the post is getting updated
+                if (isUpdatingPost == true) {
+                        // if some previous image is set, then delete it first
+                        if (post.getImage() != null) {
+                                blobService.deleteFile(post.getImage());
+                        }
+                }
                 if (file != null) {
                         log.info("Filename :" + file.getOriginalFilename());
                         log.info("Size:" + file.getSize());
                         log.info("Contenttype:" + file.getContentType());
                         try {
 
-                                blobService.storeFile(file.getOriginalFilename(), file.getInputStream(),
+                                String result = blobService.storeFile(file.getOriginalFilename(), file.getInputStream(),
                                                 file.getSize());
                                 post.setImage(file.getOriginalFilename());
-                                post.setAddDate(new Date());
-                                post.setUser(user);
-                                post.setCategory(category);
-                                post.setTitle(postDto.getTitle());
-                                post.setContent(postDto.getContent());
-                                // save to the database
-                                newPost = this.postRep.save(post);
+                                postRep.save(post);
+                                return result;
 
                         } catch (IOException ex) {
                                 throw new BlobException(AppConstants.ERROR_CODE, AppConstants.ERROR_MESSAGE,
                                                 file.getOriginalFilename() + " could not be saved!");
                         }
-
                 }
-
-                return this.modelMapper.map(newPost, PostDto.class);
-
+                return "Image not found";
         }
 
+        //update post content
         @Override
         public PostDto updatePost(PostDto postDto, Integer postId) {
                 Post post = this.postRep.findById(postId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Post", "post id", postId));
 
                 post.setContent(postDto.getContent());
-                post.setImage(postDto.getImage());
+                // post.setImage(postDto.getImage()); //image should be set when uploaded
                 post.setTitle(postDto.getTitle());
 
                 Post updatedPost = this.postRep.save(post);
@@ -103,12 +145,34 @@ public class PostServiceImpl implements PostService {
 
         }
 
+        // delete a post
         @Override
-        public void deletePost(Integer postId) {
+        public String deletePost(Integer postId) {
+                boolean imageDeleted = false, postDeleted = false;
                 Post post = this.postRep.findById(postId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Post", "post id", postId));
+                if (post.getImage() != null) {
+                        imageDeleted = blobService.deleteFile(post.getImage());
+                } else
+                        imageDeleted = true;
                 this.postRep.delete(post);
+                postDeleted = true;
+                return "Post deleted: " + postDeleted + "Image deleted: " + imageDeleted;
 
+        }
+        @Override
+        public String deleteImage(int postId){
+                Post post = this.postRep.findById(postId)
+                                .orElseThrow(() -> new ResourceNotFoundException("Post", "post id", postId));
+                if(post.getImage()!=null){
+                        boolean result=blobService.deleteFile(post.getImage());
+                        if(result==true){
+                                post.setImage(null);
+                                postRep.save(post);
+                        }
+                        return "Image deleted!";
+                }
+                return "Post does not have an image";
         }
 
         @Override
@@ -195,4 +259,16 @@ public class PostServiceImpl implements PostService {
                 return newPosts;
         }
 
+        @Override
+        public PostDto getJson(String post) {
+                PostDto postDto = new PostDto();
+                try {
+                        postDto = this.objectMapper.readValue(post, PostDto.class);
+                } catch (IOException err) {
+                        System.out.println("Some error occured while converting post string to post POJO: "
+                                        + err.getMessage());
+                        err.printStackTrace();
+                }
+                return postDto;
+        }
 }

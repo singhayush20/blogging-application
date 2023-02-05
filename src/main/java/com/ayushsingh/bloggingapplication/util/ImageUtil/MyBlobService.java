@@ -1,12 +1,14 @@
 package com.ayushsingh.bloggingapplication.util.ImageUtil;
 
-
-
+import com.azure.core.http.rest.Response;
+import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobItem;
+import com.azure.storage.blob.models.DeleteSnapshotsOptionType;
+
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -31,6 +33,7 @@ public class MyBlobService {
         return container;
     }
 
+    //list all blob files
     public List<String> listFiles() {
         log.info("List blobs BEGIN");
         BlobContainerClient container = containerClient();
@@ -43,16 +46,19 @@ public class MyBlobService {
         return list;
     }
 
+    //download a blob file
     public ByteArrayOutputStream downloadFile(String blobitem) {
         log.info("Download BEGIN {}", blobitem);
         BlobContainerClient containerClient = containerClient();
         BlobClient blobClient = containerClient.getBlobClient(blobitem);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
-        blobClient.download(os);
+        // blobClient.download(os); //download is deprecated
+        blobClient.downloadStream(os);
         log.info("Download END");
         return os;
     }
 
+    //upload a blob file
     public String storeFile(String filename, InputStream content, long length) {
         log.info("Azure store file BEGIN {}", filename);
         BlobClient client = containerClient().getBlobClient(filename);
@@ -63,8 +69,24 @@ public class MyBlobService {
         }
 
         log.info("Azure store file END");
-        return "File uploaded with success!";
+        return "File upload successful! "+client.getBlobName();
+    }
+
+    //Delete a blob file
+    public boolean deleteFile(String filename) {
+        log.info("Deleting ", filename);
+        BlobContainerClient containerClient = containerClient();
+        BlobClient blobClient = containerClient.getBlobClient(filename);
+        Response<Boolean> response = blobClient.deleteIfExistsWithResponse(DeleteSnapshotsOptionType.INCLUDE, null,
+                null,
+                new Context("key", "value"));
+        if (response.getStatusCode() == 404) {
+            System.out.println("Blob does not exist");
+            return false;
+        } else {
+            System.out.println("Delete blob completed with status %d%n "+response.getStatusCode());
+            return true;
+        }
     }
 
 }
-
