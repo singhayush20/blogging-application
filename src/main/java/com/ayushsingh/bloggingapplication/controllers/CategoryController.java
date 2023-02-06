@@ -66,8 +66,9 @@ public class CategoryController {
 
     // get
     @GetMapping("/get-all")
-    public ResponseEntity<List<CategoryDto>> getCategories() {
+    public ResponseEntity<SuccessResponse<List<CategoryDto>>> getCategories() {
         List<CategoryDto> categoryDto = this.categoryService.getAllCategories();
-        return new ResponseEntity<List<CategoryDto>>(categoryDto, HttpStatus.OK);
+        SuccessResponse<List<CategoryDto>> successResponse=new SuccessResponse<>(AppConstants.SUCCESS_CODE,AppConstants.SUCCESS_MESSAGE,categoryDto);
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
     }
 }

@@ -19,7 +19,7 @@ public class PostDto {
     public PostDto() {
     }
 
-    private String postId;
+    private int postId;
 
     private String title;
     
@@ -38,11 +38,11 @@ public class PostDto {
     //separate api for the comments is not required in this case
     private Set<CommentDto> comments=new HashSet<>();
 
-    public String getPostId() {
+    public int getPostId() {
         return postId;
     }
 
-    public void setPostId(String postId) {
+    public void setPostId(int postId) {
         this.postId = postId;
     }
 

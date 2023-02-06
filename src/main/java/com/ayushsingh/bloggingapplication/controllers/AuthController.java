@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ayushsingh.bloggingapplication.constants.AppConstants;
+import com.ayushsingh.bloggingapplication.entities.User;
 import com.ayushsingh.bloggingapplication.exceptions.APIException;
 import com.ayushsingh.bloggingapplication.payloads.JWTAuthRequest;
 import com.ayushsingh.bloggingapplication.payloads.JWTAuthResponse;
@@ -44,11 +45,12 @@ public class AuthController {
     ) throws Exception{
         this.authenticate(request.getUsername(),request.getPassword());
         //If authentication is successfull, generate the token
-        UserDetails userDetails=this.userDetailsService.loadUserByUsername(request.getUsername());
+        User userDetails=(User) this.userDetailsService.loadUserByUsername(request.getUsername());
         String generatedToken=this.jwtTokenHelper.generateToken(userDetails);
         //send this token in the response
         JWTAuthResponse response=new JWTAuthResponse();
         response.setToken(generatedToken);
+        response.setUserId(userDetails.getId());
         SuccessResponse<JWTAuthResponse> successResponse=new SuccessResponse<>(AppConstants.SUCCESS_CODE,AppConstants.SUCCESS_MESSAGE,response);
         return new  ResponseEntity<>(successResponse,HttpStatus.OK);
     }
