@@ -6,10 +6,12 @@ import org.springframework.stereotype.Service;
 
 import com.ayushsingh.bloggingapplication.entities.Comment;
 import com.ayushsingh.bloggingapplication.entities.Post;
+import com.ayushsingh.bloggingapplication.entities.User;
 import com.ayushsingh.bloggingapplication.exceptions.ResourceNotFoundException;
 import com.ayushsingh.bloggingapplication.payloads.CommentDto;
 import com.ayushsingh.bloggingapplication.repositories.CommentRep;
 import com.ayushsingh.bloggingapplication.repositories.PostRep;
+import com.ayushsingh.bloggingapplication.repositories.UserRep;
 import com.ayushsingh.bloggingapplication.services.CommentService;
 import java.util.List;
 import java.util.Optional;
@@ -21,16 +23,21 @@ public class CommentServiceImpl implements CommentService {
     private PostRep postRepo;
     @Autowired
     private CommentRep commentRepo;
+
+    @Autowired
+    private UserRep userRep;
     @Autowired
     private ModelMapper modelMapper;
 
     @Override
-    public CommentDto createComment(CommentDto commentDto, Integer postId) {
+    public CommentDto createComment(CommentDto commentDto, Integer postId,Integer userid) {
 
         Post post = this.postRepo.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("post", "post id", postId));
+        User user=this.userRep.findById(userid).orElseThrow(()->new ResourceNotFoundException("user", "userid", userid));
         Comment comment = this.modelMapper.map(commentDto, Comment.class);
-        comment.setPost(post);
+        comment.setPost(post);//set the post
+        comment.setUser(user);//set the user
         Comment savedComment = this.commentRepo.save(comment);
         return this.modelMapper.map(savedComment, CommentDto.class);
     }

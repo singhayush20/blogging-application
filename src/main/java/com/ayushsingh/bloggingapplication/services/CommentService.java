@@ -4,7 +4,7 @@ import com.ayushsingh.bloggingapplication.payloads.CommentDto;
 import java.util.List;
 public interface CommentService {
     
-    CommentDto createComment(CommentDto commentDto, Integer postId);
+    CommentDto createComment(CommentDto commentDto, Integer postId, Integer userid);
 
     void deleteComment(Integer commentId);
 

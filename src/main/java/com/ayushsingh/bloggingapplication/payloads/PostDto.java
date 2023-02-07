@@ -30,9 +30,9 @@ public class PostDto {
 
     private String image;
   
-    private UserDto user;
+    private UserDto2 user;
 
-    private CategoryDto category;
+    private CategoryDto2 category;
 
     //this will get the comments also when the post is fetched
     //separate api for the comments is not required in this case
@@ -77,23 +77,21 @@ public class PostDto {
     public void setImage(String image) {
         this.image = image;
     }
-    @JsonIgnore
-    public UserDto getUser() {
+    public UserDto2 getUser() {
         return user;
     }
 
-    public void setUser(UserDto user) {
+    public void setUser(UserDto2 user) {
         this.user = user;
     }
-    @JsonIgnore
-    public CategoryDto getCategory() {
+    public CategoryDto2 getCategory() {
         return category;
     }
 
-    public void setCategory(CategoryDto category) {
+    public void setCategory(CategoryDto2 category) {
         this.category = category;
     }
-
+    @JsonIgnore
     public Set<CommentDto> getComments() {
         return comments;
     }

@@ -25,8 +25,9 @@ public class CommentController {
 
     @PostMapping("/create")
     public ResponseEntity<SuccessResponse<CommentDto>> createComment(@RequestBody CommentDto commentDto,
-            @RequestParam(name = "postid") Integer postId) {
-                CommentDto comment = this.commentService.createComment(commentDto, postId);
+            @RequestParam(name = "postid") Integer postId, @RequestParam(name="userid") Integer userid) {
+                CommentDto comment = this.commentService.createComment(commentDto, postId,userid);
+                System.out.println("Comment: "+comment);
                 SuccessResponse<CommentDto> successResponse=new SuccessResponse<>(AppConstants.SUCCESS_CODE, AppConstants.SUCCESS_MESSAGE, comment);
 
         return new ResponseEntity<SuccessResponse<CommentDto>>(successResponse, HttpStatus.OK);
