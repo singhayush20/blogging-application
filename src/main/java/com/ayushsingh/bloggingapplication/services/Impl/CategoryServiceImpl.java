@@ -48,6 +48,7 @@ public class CategoryServiceImpl implements CategoryService {
     public void deleteCategorybyId(Integer categoryId) {
         Category oldCategory = categoryRep.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "category id", categoryId));
+        // oldCategory.removeUsers();
         this.categoryRep.delete(oldCategory);
 
     }
@@ -56,6 +57,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto getCategoryById(Integer categoryId) {
         Category oldCategory = categoryRep.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "category id", categoryId));
+
         return this.modelMapper.map(oldCategory, CategoryDto.class);
     }
 

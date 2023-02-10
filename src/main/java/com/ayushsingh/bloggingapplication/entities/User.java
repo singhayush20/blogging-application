@@ -61,7 +61,9 @@ public class User implements UserDetails{
     @OneToMany(mappedBy="user",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private List<Comment> comments=new ArrayList<>();
 
-    @ManyToMany(cascade = CascadeType.ALL/*Save role when user is saved*/, fetch = FetchType.EAGER) // each user can have many roles
+    
+
+    @ManyToMany(cascade ={CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}/*Save role when user is saved*/, fetch = FetchType.EAGER) // each user can have many roles
     @JoinTable(name = "user_role", // the name of the table which manages this relationship
             // specify the join columns in that table
             joinColumns = @JoinColumn(
@@ -95,6 +97,43 @@ public class User implements UserDetails{
                      */
                     referencedColumnName = "id"))
     private Set<Role> roles = new HashSet<>();
+
+
+    //Set of categories a user is following
+    @ManyToMany(cascade = {CascadeType.DETACH,CascadeType.MERGE,CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY) 
+    @JoinTable(name = "user_category", // the name of the table which manages this relationship
+            // specify the join columns in that table
+            joinColumns = @JoinColumn(
+                    /*
+                     * name of the join column
+                     * The name of the foreign key column which stores the user id
+                     * The table in which it is found depends upon the context.
+                     */
+                    name = "user_id",
+                    /*
+                     * The name of the primary key in the
+                     * user table which works as the foreign key in this table
+                     * column.
+                     */
+                    referencedColumnName = "id"),
+            /*
+             * The foreign key columns of the join table which reference the primary table
+             * of the entity that does not own the association. (I.e. the inverse side of
+             * the association).
+             */
+            inverseJoinColumns = @JoinColumn(
+                    /*
+                     * The name of the foreign key column. The table in which it is found depends
+                     * upon the context. The column which keeps the role id in this table
+                     */
+                    name = "category_id",
+
+                    /*
+                     * The name of the column referenced by this foreign key column. The primary key
+                     * in the category table working as the foreign key in this table
+                     */
+                    referencedColumnName = "categoryId"))
+    private Set<Category> categories=new HashSet<>();
 
 @Override
 public Collection<? extends GrantedAuthority> getAuthorities() {

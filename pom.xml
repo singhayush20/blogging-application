@@ -20,6 +20,13 @@
 	</properties>
 	<dependencies>
 
+		<dependency>
+			<groupId>com.google.firebase</groupId>
+			<artifactId>firebase-admin</artifactId>
+			<version>9.1.1</version>
+		</dependency>
+
+
 		<!-- 1. Spring Boot Starter JPA-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -117,11 +124,7 @@
 		</dependency>
 
 
-		<!-- <dependency>
-			<groupId>com.google.firebase</groupId>
-			<artifactId>firebase-admin</artifactId>
-			<version>9.1.1</version>
-		</dependency> -->
+		
 		<!-- For Java version>8 also include javax.xm.bind with spring security and jwt-->
 		<!-- https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api -->
 		<dependency>
