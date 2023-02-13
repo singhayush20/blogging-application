@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.ayushsingh.bloggingapplication.payloads.ApiResponse;
+import com.google.firebase.messaging.FirebaseMessagingException;
 
 import jakarta.mail.internet.AddressException;
 
@@ -103,7 +104,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BlobException.class)
     public ResponseEntity<ApiResponse> blobException(BlobException ex) {
         String message = ex.getMessage();
-        ApiResponse apiResponse = new ApiResponse(ex.getCode(), message, message);
+        ApiResponse apiResponse = new ApiResponse(AppConstants.ERROR_CODE, message, AppConstants.ERROR_MESSAGE);
         return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(FirebaseMessagingException.class)
+    public ResponseEntity<ApiResponse> fcmException(FirebaseMessagingException ex){
+        ApiResponse apiResponse = new ApiResponse(AppConstants.ERROR_CODE, ex.getMessage(),AppConstants.ERROR_MESSAGE);
+
+        return new ResponseEntity<ApiResponse>(apiResponse,HttpStatus.OK);
+
     }
 }

@@ -23,7 +23,12 @@ public class FirebaseFCMConfig{
                 .builder()
                 .setCredentials(googleCredentials)
                 .build();
-        FirebaseApp app = FirebaseApp.initializeApp(firebaseOptions, "my-app");
+        FirebaseApp app;
+        if(FirebaseApp.getApps().isEmpty()) {
+            app = FirebaseApp.initializeApp(firebaseOptions, "my-app");
+        }else {
+            app = FirebaseApp.initializeApp(firebaseOptions);
+        }
         return FirebaseMessaging.getInstance(app);
     }
 

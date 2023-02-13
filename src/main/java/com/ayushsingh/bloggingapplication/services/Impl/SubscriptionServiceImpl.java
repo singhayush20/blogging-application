@@ -16,6 +16,8 @@ import com.ayushsingh.bloggingapplication.payloads.UserDto3;
 import com.ayushsingh.bloggingapplication.repositories.CategoryRep;
 import com.ayushsingh.bloggingapplication.repositories.UserRep;
 import com.ayushsingh.bloggingapplication.services.SubscriptionService;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.TopicManagementResponse;
 @Service
 public class SubscriptionServiceImpl implements SubscriptionService{
 
@@ -29,8 +31,11 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     @Autowired
     CategoryRep categoryRep;
 
+    @Autowired
+    FirebaseFCMServiceImpl fcmService;
+
     @Override
-    public UserDto3 subscribeToCategory(int userid, int categoryid) {
+    public UserDto3 subscribeToCategory(int userid, int categoryid, String userToken) {
         Optional<User> user=userRep.findById(userid);
         Optional<Category> category=categoryRep.findById(categoryid);
         if(user.isEmpty()){
@@ -41,13 +46,22 @@ public class SubscriptionServiceImpl implements SubscriptionService{
         }
 
         User oldUser=user.get();
+     TopicManagementResponse response;
+    try {
+        response = fcmService.subscribeUserToTopic(userToken,categoryid);
+        System.out.println("FCM subscription response for "+userid+" and "+categoryid+" is "+response.getSuccessCount());
         oldUser.getCategories().add(category.get());
+    } catch (FirebaseMessagingException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+    }
+   
         User updatedUser=userRep.save(oldUser);
         return this.userToDto(updatedUser);
     }
 
         @Override
-        public UserDto3 unsubscribeFromCategory(int userid, int categoryid){
+        public UserDto3 unsubscribeFromCategory(int userid, int categoryid, String userToken){
             Optional<User> user=userRep.findById(userid);
             Optional<Category> category=categoryRep.findById(categoryid);
             if(user.isEmpty()){
@@ -57,8 +71,17 @@ public class SubscriptionServiceImpl implements SubscriptionService{
                 throw new ResourceNotFoundException("category", "category id", categoryid);
             }
             User oldUser=user.get();
-            boolean result=oldUser.getCategories().remove(category.get());
-            System.out.println("Is unsubscribed: "+result);
+            TopicManagementResponse response;
+            try {
+                response = fcmService.unsubscribeUserFromTopic(userToken,categoryid);
+                System.out.println("FCM cancel subscription response for "+userid+" and "+categoryid+" is "+response.getSuccessCount());
+                boolean result=oldUser.getCategories().remove(category.get());
+                System.out.println("Is unsubscribed: "+result);
+            } catch (FirebaseMessagingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+   
             User newUser=userRep.save(oldUser);
             return this.userToDto(newUser);
         }

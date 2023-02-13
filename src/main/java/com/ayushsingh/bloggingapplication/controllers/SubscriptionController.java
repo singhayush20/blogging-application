@@ -25,15 +25,15 @@ public class SubscriptionController {
     private SubscriptionService subscriptionService;
 
     @PutMapping("/subscribe")
-    public ResponseEntity<SuccessResponse<UserDto3>> subscribeToCategory(@RequestParam(name="userid") int userid, @RequestParam(name="categoryid") int categoryid){
-        UserDto3 user=subscriptionService.subscribeToCategory(userid, categoryid);
+    public ResponseEntity<SuccessResponse<UserDto3>> subscribeToCategory(@RequestParam(name="userid") int userid, @RequestParam(name="categoryid") int categoryid, @RequestParam("fcmtoken")String fcmtoken){
+        UserDto3 user=subscriptionService.subscribeToCategory(userid, categoryid,fcmtoken);
         SuccessResponse<UserDto3> successResponse=new SuccessResponse<>(AppConstants.SUCCESS_CODE,AppConstants.SUCCESS_MESSAGE,user);
         return new ResponseEntity<>(successResponse,HttpStatus.OK);
     }
 
     @DeleteMapping("/unsubscribe")
-    public ResponseEntity<SuccessResponse<UserDto3>> unsubscribeFromCategory(@RequestParam(name="userid") int userid, @RequestParam(name="categoryid") int categoryid){
-        UserDto3 user=subscriptionService.unsubscribeFromCategory(userid, categoryid);
+    public ResponseEntity<SuccessResponse<UserDto3>> unsubscribeFromCategory(@RequestParam(name="userid") int userid, @RequestParam(name="categoryid") int categoryid, @RequestParam("fcmtoken")String fcmtoken){
+        UserDto3 user=subscriptionService.unsubscribeFromCategory(userid, categoryid,fcmtoken);
         SuccessResponse<UserDto3> successResponse=new SuccessResponse<>(AppConstants.SUCCESS_CODE,AppConstants.SUCCESS_MESSAGE,user);
         return new ResponseEntity<>(successResponse,HttpStatus.OK);
     }

@@ -72,7 +72,7 @@ public class PostController {
         @GetMapping(value = "/get-post-by-user")
         public ResponseEntity<SuccessResponse<List<PostDto>>> getPostsByUser(
                         @RequestParam(name = "userid") Integer userId) {
-                List<PostDto> posts = this.postService.getPostsByUser(userId);
+                                List<PostDto> posts = this.postService.getPostsByUser(userId);
 
                 SuccessResponse<List<PostDto>> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
                                 AppConstants.SUCCESS_MESSAGE, posts);
@@ -82,10 +82,14 @@ public class PostController {
 
         // get post by category id
         @GetMapping(value = "/get-post-by-category")
-        public ResponseEntity<SuccessResponse<List<PostDto>>> getPostsByCategory(
-                        @RequestParam(name = "categoryid") Integer categoryId) {
-                List<PostDto> posts = this.postService.getPostsByCategory(categoryId);
-                SuccessResponse<List<PostDto>> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
+        public ResponseEntity<SuccessResponse<PostResponse>> getPostsByCategory(
+                        @RequestParam(name = "categoryid") Integer categoryId,
+                        @RequestParam(value="pageNumber",required = true) Integer pageNumber,
+                        @RequestParam(value = "pageSize", defaultValue = Appconstants.PAGE_SIZE, required = true) Integer pageSize,
+                        @RequestParam(value = "sortBy", defaultValue = Appconstants.SORT_BY, required = false) String sortBy,
+                        @RequestParam(value = "sortDirection", defaultValue = Appconstants.SORT_DIR, required = false) String sortDirection) {
+                PostResponse posts = this.postService.getPostsByCategory(categoryId,pageNumber,pageSize,sortBy,sortDirection);
+                SuccessResponse<PostResponse> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
                                 AppConstants.SUCCESS_MESSAGE, posts);
                 return new ResponseEntity<>(successResponse, HttpStatus.OK);
         }
@@ -135,18 +139,18 @@ public class PostController {
         }
 
         // search
-        @GetMapping(value = "/findbytitle/{string}")
+        @GetMapping(value = "/findbytitle")
         public ResponseEntity<SuccessResponse<List<PostDto>>> findPostsByTitle(
-                        @PathVariable(name = "string") String string) {
+                        @RequestParam(name = "string") String string) {
                 List<PostDto> posts = this.postService.searchPosts(string);
                 SuccessResponse<List<PostDto>> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
                                 AppConstants.SUCCESS_MESSAGE, posts);
                 return new ResponseEntity<>(successResponse, HttpStatus.OK);
         }
 
-        @GetMapping(value = "/findBytitle/query/{keyword}")
+        @GetMapping(value = "/findbyquery")
         public ResponseEntity<SuccessResponse<List<PostDto>>> findPostByTitleQuery(
-                        @PathVariable(name = "keyword") String keyword) {
+                        @RequestParam(name = "keyword") String keyword) {
                 List<PostDto> posts = this.postService.searchByTitle(keyword);
                 SuccessResponse<List<PostDto>> successResponse = new SuccessResponse<>(AppConstants.SUCCESS_CODE,
                                 AppConstants.SUCCESS_MESSAGE, posts);

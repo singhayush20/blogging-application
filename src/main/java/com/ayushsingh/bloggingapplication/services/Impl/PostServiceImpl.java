@@ -26,10 +26,8 @@ import com.ayushsingh.bloggingapplication.services.PostService;
 import com.ayushsingh.bloggingapplication.util.ImageUtil.MyBlobService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import jakarta.mail.Multipart;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -53,6 +51,9 @@ public class PostServiceImpl implements PostService {
         private MyBlobService blobService;
 
         @Autowired
+        private FirebaseFCMServiceImpl fcmServie;
+
+        @Autowired
         private ObjectMapper objectMapper;
 
         // create post with title and content
@@ -67,16 +68,7 @@ public class PostServiceImpl implements PostService {
                 Post post = this.modelMapper.map(postDto, Post.class);
 
                 Post newPost = null;
-                // save image
-                // if (file != null) {
-                // log.info("Filename :" + file.getOriginalFilename());
-                // log.info("Size:" + file.getSize());
-                // log.info("Contenttype:" + file.getContentType());
-                // try {
 
-                // blobService.storeFile(file.getOriginalFilename(), file.getInputStream(),
-                // file.getSize());
-                // post.setImage(file.getOriginalFilename());
                 post.setAddDate(new Date());
                 post.setUser(user);
                 post.setCategory(category);
@@ -84,13 +76,7 @@ public class PostServiceImpl implements PostService {
                 post.setContent(postDto.getContent());
                 // save to the database
                 newPost = this.postRep.save(post);
-
-                // } catch (IOException ex) {
-                // throw new BlobException(AppConstants.ERROR_CODE, AppConstants.ERROR_MESSAGE,
-                // file.getOriginalFilename() + " could not be saved!");
-                // }
-
-                // }
+                fcmServie.sendMessageToTopic(categoryId);
 
                 return this.modelMapper.map(newPost, PostDto.class);
 
@@ -129,7 +115,7 @@ public class PostServiceImpl implements PostService {
                 return "Image not found";
         }
 
-        //update post content
+        // update post content
         @Override
         public PostDto updatePost(PostDto postDto, Integer postId) {
                 Post post = this.postRep.findById(postId)
@@ -160,13 +146,14 @@ public class PostServiceImpl implements PostService {
                 return "Post deleted: " + postDeleted + "Image deleted: " + imageDeleted;
 
         }
+
         @Override
-        public String deleteImage(int postId){
+        public String deleteImage(int postId) {
                 Post post = this.postRep.findById(postId)
                                 .orElseThrow(() -> new ResourceNotFoundException("Post", "post id", postId));
-                if(post.getImage()!=null){
-                        boolean result=blobService.deleteFile(post.getImage());
-                        if(result==true){
+                if (post.getImage() != null) {
+                        boolean result = blobService.deleteFile(post.getImage());
+                        if (result == true) {
                                 post.setImage(null);
                                 postRep.save(post);
                         }
@@ -215,23 +202,57 @@ public class PostServiceImpl implements PostService {
         }
 
         @Override
-        public List<PostDto> getPostsByCategory(Integer categoryId) {
+        public PostResponse getPostsByCategory(Integer categoryId, Integer pageNumber, Integer pageSize, String sortBy,
+                        String sortDirection) {
                 Category category = this.catRep.findById(categoryId)
                                 .orElseThrow(() -> new ResourceNotFoundException("category", "cateogory id",
                                                 categoryId));
-                List<Post> posts = this.postRep.findByCategory(category);
-                List<PostDto> newPosts = posts.stream().map((post) -> this.modelMapper.map(post, PostDto.class))
+                Sort sort = null;
+                // Create pageable object
+                if (sortDirection.equalsIgnoreCase("asc")) {
+                        sort = Sort.by(sortBy).ascending();
+                } else if (sortDirection.equalsIgnoreCase("desc")) {
+                        sort = Sort.by(sortBy).descending();
+                }
+                Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+                Page<Post> posts = this.postRep.findByCategory(category, pageable);
+
+                List<PostDto> newPosts = posts.getContent().stream().map((post) -> this.modelMapper.map(post, PostDto.class))
                                 .collect(Collectors.toList());
-                return newPosts;
+                 PostResponse postResponse=new PostResponse();
+                postResponse.setContent(newPosts);
+                postResponse.setPageNumber(posts.getNumber());
+                postResponse.setPageSize(posts.getSize());
+                postResponse.setLastPage(posts.isLast());
+                postResponse.setTotalElements(posts.getTotalElements());
+                postResponse.setTotalPages(posts.getTotalPages());
+                postResponse.setCurrentPageSize(newPosts.size());
+                return postResponse;
         }
 
         @Override
         public List<PostDto> getPostsByUser(Integer userId) {
                 User user = this.userRep.findById(userId)
                                 .orElseThrow(() -> new ResourceNotFoundException("user", "user id", userId));
-                List<Post> posts = this.postRep.findByUser(user);
-                List<PostDto> newPosts = posts.stream().map((post) -> this.modelMapper.map(post, PostDto.class))
+                // Sort sort = null;
+                // Create pageable object
+                // if (sortDirection.equalsIgnoreCase("asc")) {
+                //         sort = Sort.by(sortBy).ascending();
+                // } else if (sortDirection.equalsIgnoreCase("desc")) {
+                //         sort = Sort.by(sortBy).descending();
+                // }
+                // Pageable page = PageRequest.of(pageNumber, pageSize, sort);
+                List<Post> obtainedPage = this.postRep.findByUser(user);
+                List<PostDto> newPosts = obtainedPage.stream().map((post) -> this.modelMapper.map(post, PostDto.class))
                                 .collect(Collectors.toList());
+                // PostResponse postResponse=new PostResponse();
+                // postResponse.setContent(newPosts);
+                // postResponse.setPageNumber(obtainedPage.getNumber());
+                // postResponse.setPageSize(obtainedPage.getSize());
+                // postResponse.setLastPage(obtainedPage.isLast());
+                // postResponse.setTotalElements(obtainedPage.getTotalElements());
+                // postResponse.setTotalPages(obtainedPage.getTotalPages());
+                // postResponse.setCurrentPageSize(newPosts.size());
                 return newPosts;
         }
 
