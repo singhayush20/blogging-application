@@ -76,7 +76,6 @@ public class PostServiceImpl implements PostService {
                 post.setContent(postDto.getContent());
                 // save to the database
                 newPost = this.postRep.save(post);
-                fcmServie.sendMessageToTopic(categoryId);
 
                 return this.modelMapper.map(newPost, PostDto.class);
 
@@ -104,7 +103,11 @@ public class PostServiceImpl implements PostService {
                                 String result = blobService.storeFile(file.getOriginalFilename(), file.getInputStream(),
                                                 file.getSize());
                                 post.setImage(file.getOriginalFilename());
-                                postRep.save(post);
+                                Post updatedPost = postRep.save(post);
+
+                                final String message=(isUpdatingPost==true)?"Update":"New Post";
+                                fcmServie.sendMessageToTopic(updatedPost.getCategory().getCategoryId(), updatedPost,message);
+
                                 return result;
 
                         } catch (IOException ex) {
@@ -126,6 +129,7 @@ public class PostServiceImpl implements PostService {
                 post.setTitle(postDto.getTitle());
 
                 Post updatedPost = this.postRep.save(post);
+                fcmServie.sendMessageToTopic(updatedPost.getCategory().getCategoryId(), updatedPost,"Update");
 
                 return this.modelMapper.map(updatedPost, PostDto.class);
 
@@ -217,9 +221,10 @@ public class PostServiceImpl implements PostService {
                 Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
                 Page<Post> posts = this.postRep.findByCategory(category, pageable);
 
-                List<PostDto> newPosts = posts.getContent().stream().map((post) -> this.modelMapper.map(post, PostDto.class))
+                List<PostDto> newPosts = posts.getContent().stream()
+                                .map((post) -> this.modelMapper.map(post, PostDto.class))
                                 .collect(Collectors.toList());
-                 PostResponse postResponse=new PostResponse();
+                PostResponse postResponse = new PostResponse();
                 postResponse.setContent(newPosts);
                 postResponse.setPageNumber(posts.getNumber());
                 postResponse.setPageSize(posts.getSize());
@@ -237,9 +242,9 @@ public class PostServiceImpl implements PostService {
                 // Sort sort = null;
                 // Create pageable object
                 // if (sortDirection.equalsIgnoreCase("asc")) {
-                //         sort = Sort.by(sortBy).ascending();
+                // sort = Sort.by(sortBy).ascending();
                 // } else if (sortDirection.equalsIgnoreCase("desc")) {
-                //         sort = Sort.by(sortBy).descending();
+                // sort = Sort.by(sortBy).descending();
                 // }
                 // Pageable page = PageRequest.of(pageNumber, pageSize, sort);
                 List<Post> obtainedPage = this.postRep.findByUser(user);

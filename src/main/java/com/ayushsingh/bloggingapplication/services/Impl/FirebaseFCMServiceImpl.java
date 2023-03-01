@@ -11,7 +11,7 @@ import com.google.firebase.messaging.TopicManagementResponse;
 import com.google.firebase.messaging.AndroidConfig.Priority;
 
 import java.util.List;
-
+import com.ayushsingh.bloggingapplication.entities.Post;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,19 +51,22 @@ public class FirebaseFCMServiceImpl {
         return response;
     }
 
-    public void sendMessageToTopic(Integer categoryid) {
+    public void sendMessageToTopic(Integer categoryid,Post newPost,String notificationTitle) {
         String topic = "TOPIC" + categoryid;
         AndroidFcmOptions androidFcmOptions = AndroidFcmOptions.builder().setAnalyticsLabel("AnalyticsLabel").build();
         // See documentation on defining a message payload.
-        Notification notification=Notification.builder().setTitle("SFBlog").setBody("Here is a new article for you").build();
+        Notification notification=Notification.builder().setTitle(notificationTitle).setBody(newPost.getTitle()).build();
         Message message = Message.builder()
                 .setAndroidConfig(
                         AndroidConfig.builder()
                                 .setPriority(Priority.HIGH)
                                 .setFcmOptions(androidFcmOptions)
                                 .build())
-                .putData("Categoryid", categoryid.toString())
-                .putData("Description", "A new article has been added!")
+                .putData("categoryid", categoryid.toString())
+                .putData("title", newPost.getTitle())
+                .putData("content", newPost.getContent())
+                .putData("image", newPost.getImage())
+                .putData("date", newPost.getAddDate().toString())
                 .setTopic(topic)
                 .setNotification(notification)
                 .build();

@@ -128,12 +128,14 @@ public class EmailController {
                 }
                 return (result)
                                 ? new ResponseEntity<ApiResponse>(
-                                                new ApiResponse(AppConstants.SUCCESS_CODE,
-                                                                "Otp sent successfully on email",
+                                                new ApiResponse("Otp sent successfully on email",
+                                                                AppConstants.SUCCESS_CODE,
                                                                 AppConstants.SUCCESS_MESSAGE),
                                                 HttpStatus.OK)
-                                : new ResponseEntity<ApiResponse>(new ApiResponse(AppConstants.FAILURE_CODE,
-                                                "Otp not sent due to some problem!", AppConstants.FAILURE_MESSAGE),
+                                : new ResponseEntity<ApiResponse>(
+                                                new ApiResponse("Otp not sent due to some problem!",
+                                                                AppConstants.FAILURE_CODE,
+                                                                AppConstants.FAILURE_MESSAGE),
                                                 HttpStatus.OK);
         }
 
