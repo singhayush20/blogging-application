@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy JAR app to Azure Web App - spring-boot-blogging-app
+name: Build and deploy JAR app to Azure Web App - BloggingAppService
 
 on:
   push:
@@ -47,7 +47,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'spring-boot-blogging-app'
+          app-name: 'BloggingAppService'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_91C15C53559F44B8A2F1F6FBA9C665D4 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_6E878855D9B44FED876E5D0669AEF367 }}
           package: '*.jar'
