@@ -13,4 +13,5 @@ public interface UserService {
     UserDto getUserByEmail(String email);
     List<UserDto> getAllUsers();
     void deleteUser(Integer userId);
+    void logoutUser(Integer userid, String deviceToken);
 }

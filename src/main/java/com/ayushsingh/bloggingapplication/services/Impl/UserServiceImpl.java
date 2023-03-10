@@ -24,6 +24,8 @@ public class UserServiceImpl implements UserService {
     private UserRep userRepo;
     @Autowired
     private RoleRep roleRepo;
+    @Autowired
+    private FirebaseFCMServiceImpl fcmService;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -139,6 +141,17 @@ public class UserServiceImpl implements UserService {
         User newUser=this.userRepo.save(user);
         System.out.println(this.getClass().getName()+": new user: "+newUser);
         return this.usertoDto(newUser);
+    }
+
+    @Override
+    public void logoutUser(Integer userid, String deviceToken){
+        User user=this.userRepo.findById(userid).get();
+        if(user!=null){
+            this.fcmService.unsubscribeFromTopics(deviceToken, user.getCategories());
+        }
+        else{
+            throw new ResourceNotFoundException("User","userid",userid);
+        }
     }
 
 }

@@ -1,6 +1,5 @@
 package com.ayushsingh.bloggingapplication.services.Impl;
 
-import com.ayushsingh.bloggingapplication.model.TargetNotification;
 import com.google.firebase.messaging.AndroidConfig;
 import com.google.firebase.messaging.AndroidFcmOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -14,8 +13,9 @@ import java.util.List;
 import com.ayushsingh.bloggingapplication.entities.Post;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import com.ayushsingh.bloggingapplication.entities.Category;
 import java.util.ArrayList;
+import java.util.Set;
 
 @Service
 public class FirebaseFCMServiceImpl {
@@ -25,8 +25,6 @@ public class FirebaseFCMServiceImpl {
     // }
     @Autowired
     private FirebaseMessaging firebaseMessaging;
-
-    String defaultToken = "fOplegJHRw2j2RXwEAvMuB:APA91bG1v_IzGreT2IA4B7hZLhVmH1oOGy0zvkXbfP9SJQLn1rFGwy1lgw48TthvbL1H-TUR-pRV6zOgZGCESzvM77nRdP92EbYjKk3-c1GDxqdtrG-IXUjmVa6W2WwcBaSP9CDI1v7N";
 
     // subscribe to topic
     public TopicManagementResponse subscribeUserToTopic(String userToken, int categoryid)
@@ -51,11 +49,12 @@ public class FirebaseFCMServiceImpl {
         return response;
     }
 
-    public void sendMessageToTopic(Integer categoryid,Post newPost,String notificationTitle) {
+    public void sendMessageToTopic(Integer categoryid, Post newPost, String notificationTitle) {
         String topic = "TOPIC" + categoryid;
         AndroidFcmOptions androidFcmOptions = AndroidFcmOptions.builder().setAnalyticsLabel("AnalyticsLabel").build();
         // See documentation on defining a message payload.
-        Notification notification=Notification.builder().setTitle(notificationTitle).setBody(newPost.getTitle()).build();
+        Notification notification = Notification.builder().setTitle(notificationTitle).setBody(newPost.getTitle())
+                .build();
         Message message = Message.builder()
                 .setAndroidConfig(
                         AndroidConfig.builder()
@@ -66,7 +65,8 @@ public class FirebaseFCMServiceImpl {
                 .putData("title", newPost.getTitle())
                 .putData("content", newPost.getContent())
                 .putData("image", newPost.getImage())
-                .putData("date", newPost.getAddDate().toString())
+                .putData("postid", newPost.getPostId().toString())
+                .putData("addDate", newPost.getAddDate().toString())
                 .setTopic(topic)
                 .setNotification(notification)
                 .build();
@@ -81,5 +81,39 @@ public class FirebaseFCMServiceImpl {
         }
         // Response is a message ID string.
         System.out.println("Send message to " + topic + " response: " + response);
+    }
+
+    // When user logs in subscribe to receive notifications
+    public void subscribeToTopics(String userToken, Set<Category> subscribedCategories) {
+        List<String> userTokens = new ArrayList<>();
+        userTokens.add(userToken);
+
+        for (Category category : subscribedCategories) {
+            String topic = "TOPIC" + category.getCategoryId();
+            try {
+                firebaseMessaging.subscribeToTopic(userTokens, topic);
+            } catch (FirebaseMessagingException e) {
+                System.out.println("Error occured while subscribing to topic: " + topic);
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
+    // When user logs out, unsubscribe
+    public void unsubscribeFromTopics(String userToken, Set<Category> subscribedCategories) {
+        List<String> userTokens = new ArrayList<>();
+        userTokens.add(userToken);
+        for (Category category : subscribedCategories) {
+            String topic = "TOPIC" + category.getCategoryId();
+            try {
+                firebaseMessaging.unsubscribeFromTopic(userTokens, topic);
+            } catch (FirebaseMessagingException e) {
+                System.out.println("Error occurrred while unsubscribing");
+                e.printStackTrace();
+            }
+        }
+
     }
 }

@@ -6,13 +6,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.RequestParam;
+import com.ayushsingh.bloggingapplication.payloads.ApiResponse;
 import com.ayushsingh.bloggingapplication.constants.AppConstants;
 import com.ayushsingh.bloggingapplication.entities.User;
 import com.ayushsingh.bloggingapplication.exceptions.APIException;
@@ -21,6 +21,7 @@ import com.ayushsingh.bloggingapplication.payloads.JWTAuthResponse;
 import com.ayushsingh.bloggingapplication.payloads.UserDto;
 import com.ayushsingh.bloggingapplication.security.JwtTokenHelper;
 import com.ayushsingh.bloggingapplication.services.UserService;
+import com.ayushsingh.bloggingapplication.services.Impl.FirebaseFCMServiceImpl;
 import com.ayushsingh.bloggingapplication.payloads.SuccessResponse;
 @RestController
 @RequestMapping("/blog/auth/")
@@ -33,7 +34,12 @@ public class AuthController {
     private UserDetailsService userDetailsService;
 
     @Autowired
+    private FirebaseFCMServiceImpl fcmService;
+
+    @Autowired
     private UserService userService;
+
+
     // authentication manager will be used to authenticate the
     // password
     @Autowired
@@ -41,12 +47,15 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<SuccessResponse<JWTAuthResponse>> createToken(
-        @RequestBody JWTAuthRequest request
+        @RequestBody JWTAuthRequest request,
+        @RequestParam(name="devicetoken") String deviceToken
     ) throws Exception{
         this.authenticate(request.getUsername(),request.getPassword());
         //If authentication is successfull, generate the token
         User userDetails=(User) this.userDetailsService.loadUserByUsername(request.getUsername());
         String generatedToken=this.jwtTokenHelper.generateToken(userDetails);
+        //subscribe the device token for fcm 
+        fcmService.subscribeToTopics(deviceToken, userDetails.getCategories());
         //send this token in the response
         JWTAuthResponse response=new JWTAuthResponse();
         response.setToken(generatedToken);
@@ -71,7 +80,17 @@ public class AuthController {
             //throw the exception to break normal execution
             throw new APIException("Invalid username or password");
         }
+    }
 
+    //To unsubscribe from notifications
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse> logout(
+        @RequestParam(name="userid") Integer userid,
+        @RequestParam(name="devicetoken") String deviceToken
+    ) throws Exception{
+        userService.logoutUser(userid, deviceToken);
+        ApiResponse response=new ApiResponse("Logged Out Successfully",AppConstants.SUCCESS_CODE,AppConstants.SUCCESS_MESSAGE);
+        return new ResponseEntity<>(response,HttpStatus.OK);
     }
 
     //Register new user api
