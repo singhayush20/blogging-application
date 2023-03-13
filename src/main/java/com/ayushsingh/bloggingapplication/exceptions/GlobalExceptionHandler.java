@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class) // add comma separated list of Exception classes
     public ResponseEntity<ApiResponse> resourceNotFoundException(ResourceNotFoundException ex) {
         ApiResponse apiResponse = new ApiResponse(ex.getMessage(), AppConstants.ERROR_CODE, AppConstants.ERROR_MESSAGE);
-        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.OK);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
 
-        return new ResponseEntity<Map<String, String>>(errors, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<Map<String, String>>(errors, HttpStatus.OK);
     }
 
     @ExceptionHandler
@@ -46,7 +46,7 @@ public class GlobalExceptionHandler {
         String fieldName = "errorMessage";
         String error = ex.getMessage();
         errors.put(fieldName, error);
-        return new ResponseEntity<Map<String, String>>(errors, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<Map<String, String>>(errors, HttpStatus.OK);
     }
     @ExceptionHandler(APIException.class)
     public ResponseEntity<Map<String, String>> handleAPIException( APIException ex) {
@@ -54,13 +54,13 @@ public class GlobalExceptionHandler {
         String fieldName = "errorMessage";
         String error = ex.getMessage();
         errors.put(fieldName, error);
-        return new ResponseEntity<Map<String, String>>(errors, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<Map<String, String>>(errors, HttpStatus.OK);
     }
 
     @ExceptionHandler(DuplicateResourceException.class) // add comma separated list of Exception classes
     public ResponseEntity<ApiResponse> duplicateResourceFoundException(DuplicateResourceException ex) {
         ApiResponse apiResponse = new ApiResponse(ex.getMessage(), AppConstants.ERROR_CODE, AppConstants.ERROR_MESSAGE);
-        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.OK);
     }
 
     @ExceptionHandler(JWTAuthenticationException.class)
@@ -79,33 +79,33 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse> invalidTokenException(InvalidTokenInHeaderException ex) {
         String message = ex.getMessage();
         ApiResponse apiResponse = new ApiResponse(AppConstants.ERROR_CODE, message, AppConstants.ERROR_MESSAGE);
-        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.OK);
     }
 
     @ExceptionHandler(NoAdminPermissionException.class)
     public ResponseEntity<ApiResponse> noPermissionException(NoAdminPermissionException ex) {
         String message = ex.getMessage();
         ApiResponse apiResponse = new ApiResponse(AppConstants.ERROR_CODE, message, AppConstants.ERROR_MESSAGE);
-        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.OK);
     }
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiResponse> noParameterException(MissingServletRequestParameterException ex) {
         String message = ex.getMessage();
         ApiResponse apiResponse = new ApiResponse(AppConstants.ERROR_CODE, message, AppConstants.ERROR_MESSAGE);
-        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.OK);
     }
     @ExceptionHandler(AddressException.class)
     public ResponseEntity<ApiResponse> addressException(MissingServletRequestParameterException ex) {
         String message = ex.getMessage();
         ApiResponse apiResponse = new ApiResponse(AppConstants.ERROR_CODE, message, AppConstants.ERROR_MESSAGE);
-        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.OK);
     }
 
     @ExceptionHandler(BlobException.class)
     public ResponseEntity<ApiResponse> blobException(BlobException ex) {
         String message = ex.getMessage();
         ApiResponse apiResponse = new ApiResponse(AppConstants.ERROR_CODE, message, AppConstants.ERROR_MESSAGE);
-        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<ApiResponse>(apiResponse, HttpStatus.OK);
     }
 
     @ExceptionHandler(FirebaseMessagingException.class)

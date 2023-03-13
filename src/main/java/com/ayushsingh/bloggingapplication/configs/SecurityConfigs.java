@@ -1,38 +1,34 @@
 package com.ayushsingh.bloggingapplication.configs;
 
-import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.ayushsingh.bloggingapplication.constants.AppConstants;
 import com.ayushsingh.bloggingapplication.security.CustomUserDetailsService;
 import com.ayushsingh.bloggingapplication.security.JwtAuthenticationFilter;
-import com.nimbusds.jose.shaded.json.JSONObject;
 
-import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
 @EnableWebMvc // for Swagger
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfigs {
     public static final String[] PUBLIC_URLS = {
             "/blog/auth/**", // for authentication
@@ -43,14 +39,18 @@ public class SecurityConfigs {
             "/webjars/**",
     };
 
+  
     @Autowired
-    PasswordEncoder passwordEncoder;
-    @Autowired
-    private AuthenticationEntryPoint authenticationEntryPoint;
+    private AuthenticationEntryPoint unauthorizedHandler;
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     @Autowired
     private CustomUserDetailsService customUserDetailService;
+
+
+
+ 
+    
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -58,46 +58,16 @@ public class SecurityConfigs {
                 .authorizeHttpRequests() // authorize http requests
                 .requestMatchers(PUBLIC_URLS)
                 .permitAll()
-                // .antMatchers("/api/v1/auth/*") // make the authentication url public
-                // .permitAll()
-                // .antMatchers("/v3/api-docs")//for swagger api documentation
-                // .permitAll()// permit these urls to be accessed directly
-                // .requestMatchers(HttpMethod.GET)
-                // .permitAll() // allow all the get APIs to be accessible without login
-                .anyRequest() // authorize all requests
+                .anyRequest()
                 .authenticated() // authenticate
                 .and()
-                .exceptionHandling()// for jwt authentication (not required with basic authentication)
+                .exceptionHandling()
+                .authenticationEntryPoint(unauthorizedHandler)
+                .and()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-                .authenticationEntryPoint((request, response, e) -> {
-                    JSONObject responseObject = new JSONObject();
-                    responseObject.put("message", "Access Denied");
-                    responseObject.put("status", AppConstants.FAILURE_MESSAGE);
-                    responseObject.put("code", AppConstants.FAILURE_CODE);
-                    response.setContentType("application/json;charset=UTF-8");
-                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                    response.getWriter().write(responseObject.toString());
-                })// for jwt authentication (not required with
-                  // basic authentication)
-                /*
-                 * These two lines will ensure that if ever any error occurs due to
-                 * authentication unauthorization
-                 * the method in entry point is invoked
-                 */
-                .and()// for jwt authentication (not required with basic authentication)
-                .sessionManagement()// for jwt authentication (not required with basic authentication)
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);// for jwt authentication (not required with
-                                                                        // basic authentication)
-        // .httpBasic(); // type of authentication - basic
-
-        http.addFilterBefore(this.jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);// for jwt
-                                                                                                       // authentication
-                                                                                                       // (not required
-                                                                                                       // with basic
-                                                                                                       // authentication)
-        http.authenticationProvider(daoAuthenticationProvider());
-        // using this method, we will not get a html/css web form, instead
-        // we will now get the javascript generated form.
+        http.addFilterBefore(this.jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -107,9 +77,14 @@ public class SecurityConfigs {
 
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setUserDetailsService(this.customUserDetailService);
-        provider.setPasswordEncoder(this.passwordEncoder);
+        provider.setPasswordEncoder(passwordEncoder());
         return provider;
 
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
@@ -117,14 +92,7 @@ public class SecurityConfigs {
         return configuration.getAuthenticationManager();
     }
 
-    @Bean
-    public WebMvcConfigurer customConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
-                configurer.defaultContentType(MediaType.APPLICATION_JSON);
-            }
-        };
-    }
+
+   
 
 }

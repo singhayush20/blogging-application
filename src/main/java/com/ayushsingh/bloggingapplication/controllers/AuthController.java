@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,8 +51,10 @@ public class AuthController {
     public ResponseEntity<SuccessResponse<JWTAuthResponse>> createToken(
         @RequestBody JWTAuthRequest request,
         @RequestParam(name="devicetoken") String deviceToken
-    ) throws Exception{
-        this.authenticate(request.getUsername(),request.getPassword());
+    ) {
+    
+            this.authenticate(request.getUsername(),request.getPassword());
+   
         //If authentication is successfull, generate the token
         User userDetails=(User) this.userDetailsService.loadUserByUsername(request.getUsername());
         String generatedToken=this.jwtTokenHelper.generateToken(userDetails);
@@ -64,20 +68,23 @@ public class AuthController {
         return new  ResponseEntity<>(successResponse,HttpStatus.OK);
     }
 
-    private void authenticate(String username, String password) throws Exception {
+    private void authenticate(String username, String password) {
 
         // Create authentication token
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,
                 password);
-        // authenticate using authentication manager
         try{
             // this can throw excptions which will be handled globally 
         //in cases like user is disabled
         this.authenticationManager.authenticate(authenticationToken);
         }
+        catch(DisabledException e){
+            throw new APIException("user is disabled");
+        }
+        catch(LockedException e){           
+            throw new APIException("User is locked");
+        }
         catch(BadCredentialsException e){
-            System.out.println("Invalid credentials: username: "+username+" password: "+password);
-            //throw the exception to break normal execution
             throw new APIException("Invalid username or password");
         }
     }
