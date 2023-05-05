@@ -1,7 +1,7 @@
 # Blogging Application - Backend
 ## Project Description
 This is the backend server application for the Blogging Application.
-https://github.com/singhayush20/blog_app  
+The app can be found here- https://github.com/singhayush20/blog_app  
 This backend applicaiton provides REST APIs for the Blogging Application.
 
 ## Technologies Used
