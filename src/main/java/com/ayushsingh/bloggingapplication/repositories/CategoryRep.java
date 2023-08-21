@@ -7,6 +7,5 @@ import java.util.Optional;
 
 public interface CategoryRep extends JpaRepository<Category, Integer> {
 
-    // email id will work as username
     Optional<Category> findByCategoryName(String categoryName);
 }

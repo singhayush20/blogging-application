@@ -34,12 +34,12 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
     @Override
     public UserDto createUser(UserDto userDto) {
+        //find user by email to check for duplicacy
         Optional<User> result=userRepo.findByEmail(userDto.getEmail());
         if(result.isPresent()){
             throw new DuplicateResourceException("User", "email", userDto.getEmail());
         }
-        //encrypt the password
-        // userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
+       
         User user = this.dtoToUser(userDto);
         
         // save the user
@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(UserDto userDto, Integer userId) {
-        
+        //search for user details
         Optional<User> result=userRepo.findById(userId);
         User user=null;
         if(result.isPresent()){
@@ -61,6 +61,7 @@ public class UserServiceImpl implements UserService {
             throw new ResourceNotFoundException("User","user id",userId);
         }
 
+        //update details
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
         user.setAbout(userDto.getAbout());
@@ -91,6 +92,10 @@ public class UserServiceImpl implements UserService {
         //get all the users
         List<User> users=this.userRepo.findAll();
         //convert all the users to user dtos
+        /*
+         * stream map() method returns a stream consisting of the results of applying
+         * the given function to the elements of this stream
+         */
        List<UserDto> userDtos= users.stream().map(user->this.usertoDto(user)).collect(Collectors.toList());
         return userDtos;
     }

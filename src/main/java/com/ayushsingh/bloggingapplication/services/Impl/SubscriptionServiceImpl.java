@@ -52,7 +52,6 @@ public class SubscriptionServiceImpl implements SubscriptionService{
         System.out.println("FCM subscription response for "+userid+" and "+categoryid+" is "+response.getSuccessCount());
         oldUser.getCategories().add(category.get());
     } catch (FirebaseMessagingException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
     }
    
@@ -78,7 +77,6 @@ public class SubscriptionServiceImpl implements SubscriptionService{
                 boolean result=oldUser.getCategories().remove(category.get());
                 System.out.println("Is unsubscribed: "+result);
             } catch (FirebaseMessagingException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
    

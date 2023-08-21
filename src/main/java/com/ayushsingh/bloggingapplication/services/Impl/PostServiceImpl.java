@@ -26,6 +26,7 @@ import com.ayushsingh.bloggingapplication.services.PostService;
 import com.ayushsingh.bloggingapplication.util.ImageUtil.MyBlobService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -51,12 +52,11 @@ public class PostServiceImpl implements PostService {
         private MyBlobService blobService;
 
         @Autowired
-        private FirebaseFCMServiceImpl fcmServie;
+        private FirebaseFCMServiceImpl fcmService;
 
         @Autowired
         private ObjectMapper objectMapper;
 
-        // create post with title and content
         @Override
         public PostDto createPost(PostDto postDto, Integer userId, Integer categoryId) {
 
@@ -83,6 +83,7 @@ public class PostServiceImpl implements PostService {
 
         // upload an image to the post
         @Override
+        @Transactional
         public String uploadImage(MultipartFile file, int postid, boolean isUpdatingPost) {
                 Post post = postRep.findById(postid)
                                 .orElseThrow(() -> new ResourceNotFoundException("Post", "post id", postid));
@@ -105,8 +106,9 @@ public class PostServiceImpl implements PostService {
                                 post.setImage(file.getOriginalFilename());
                                 Post updatedPost = postRep.save(post);
 
-                                final String message=(isUpdatingPost==true)?"Update":"New Post";
-                                fcmServie.sendMessageToTopic(updatedPost.getCategory().getCategoryId(), updatedPost,message);
+                                final String message = (isUpdatingPost == true) ? "Update" : "New Post";
+                                fcmService.sendMessageToTopic(updatedPost.getCategory().getCategoryId(), updatedPost,
+                                                message);
 
                                 return result;
 
@@ -129,7 +131,7 @@ public class PostServiceImpl implements PostService {
                 post.setTitle(postDto.getTitle());
 
                 Post updatedPost = this.postRep.save(post);
-                fcmServie.sendMessageToTopic(updatedPost.getCategory().getCategoryId(), updatedPost,"Update");
+                fcmService.sendMessageToTopic(updatedPost.getCategory().getCategoryId(), updatedPost, "Update");
 
                 return this.modelMapper.map(updatedPost, PostDto.class);
 

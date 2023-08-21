@@ -20,35 +20,34 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="post")
+@Table(name = "post")
 @NoArgsConstructor
 @Getter
 @Setter
 public class Post {
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer postId;
-    @Column(name="post_title",nullable=false)
+    @Column(name = "post_title", nullable = false)
     private String title;
-    @Column(name="post_content",length=10000,nullable =false)
+    @Column(name = "post_content", length = 10000, nullable = false)
     private String content;
-    @Column(name="image_name")
+    @Column(name = "image_name")
     private String image;
-    @Column(name="post_date")
+    @Column(name = "post_date")
     private Date addDate;
-    //every post is associated with a category
-    //many posts in one category
+    // every post is associated with a category
+    // many posts in one category
     @ManyToOne
-    @JoinColumn(name="categoryid",nullable = false)
+    @JoinColumn(name = "categoryid", nullable = false)
     private Category category;
-    //every post is made by an user
-    //many posts for one user
+    // every post is made by an user
+    // many posts for one user
     @ManyToOne
-    @JoinColumn(name="userid",nullable = false)
+    @JoinColumn(name = "userid", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy="post",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-    private Set<Comment> comments=new HashSet<>();
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Comment> comments = new HashSet<>();
 
-    
 }

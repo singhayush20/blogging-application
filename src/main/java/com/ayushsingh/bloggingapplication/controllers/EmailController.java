@@ -1,6 +1,5 @@
 package com.ayushsingh.bloggingapplication.controllers;
 
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,8 +40,10 @@ public class EmailController {
 
         // Send OTP for email verification
         @PostMapping("/sendotp")
-        public ResponseEntity<SuccessResponse<String>> sendOTP(@RequestParam("email") String email,
-                        HttpSession session) {
+        public ResponseEntity<SuccessResponse<String>> sendOTP(@RequestParam("email") String email/*
+                                                                                                   * ,
+                                                                                                   * HttpSession session
+                                                                                                   */) {
 
                 System.out.println("Sending OTP for email id: " + email);
 
@@ -58,8 +59,7 @@ public class EmailController {
                                 + "</b>"
                                 + "</h2>"
                                 + "</div>";
-                // session.setAttribute("storedOTP", otp);
-                // session.setAttribute("email", email);
+
                 boolean result = this.emailService.sendEmail(subject, message, email);
 
                 return (result)
@@ -77,12 +77,7 @@ public class EmailController {
         public ResponseEntity<ApiResponse> verifyOtp(@RequestParam("otp") int otp,
                         @RequestParam("email") String email) {
                 boolean flag = false;
-                // int myOtp = (int) session.getAttribute("storedOTP");
-                // String email=(String)session.getAttribute("email");
-                // if (myOtp == otp) {
-                // System.out.println("Otp is verified");
-                // flag = true;
-                // }
+
                 int storedOTP = this.otpService.getOTP(email);
                 System.out.println("Stored OTP: " + storedOTP + " sent otp: " + otp);
                 if (storedOTP == otp) {
@@ -104,10 +99,7 @@ public class EmailController {
                 System.out.println("Sending OTP on email id: " + email);
                 Optional<User> user = userRepository.findByEmail(email);
                 if (user.isPresent()) {
-                        // Generate random no.
-                        // Random random = new Random(1000);
-                        // int otp = random.nextInt(999999);
-                        // System.out.println("Generated OTP: " + otp);
+
                         int otp = this.otpService.generateOTP(email);
                         String subject = "Reset Password OTP";
                         String message = "" +
@@ -119,8 +111,7 @@ public class EmailController {
                                         + "</b>"
                                         + "</h2>"
                                         + "</div>";
-                        // session.setAttribute("storedOTP", otp);
-                        // session.setAttribute("email", email);
+
                         result = this.emailService.sendEmail(subject, message, email);
                 } else {
                         throw new ResourceNotFoundException("User", email, 0);
@@ -144,8 +135,7 @@ public class EmailController {
                         @RequestParam("email") String email, @RequestParam("password") String password,
                         HttpSession session) {
                 boolean flag = false;
-                // int myOtp = (int) session.getAttribute("storedOTP");
-                // String email=(String)session.getAttribute("email");
+
                 int storedOTP = this.otpService.getOTP(email);
 
                 if (storedOTP == otp) {
